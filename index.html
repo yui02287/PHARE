@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>樂法 Le Phare 飲料店</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+  /* ===== v7 樂法 Le Phare 品牌換皮：粉霧藍單色＋留白，無漸層／木紋／深色陰影（見 BRAND.md） ===== */
+  :root{
+    /* 品牌色票 */
+    --brand:#88AEDC; --brand-dark:#6B95C9; --brand-soft:#C9DAF0; --brand-tint:#E8F0F9;
+    --bg:#F6F9FD; --card:#FFFFFF; --line:#D7E3F2; --ink:#2B4460; --muted:#6E86A3;
+    --ice:#BFE3F2; --ice-dark:#7CC4E0;
+    --ok:#5FA98A; --warn:#E0A64B; --bad:#D9776B;
+    --r:12px; --shadow:0 1px 2px rgba(43,68,96,.06);
+    --face:clamp(48px, 7vh, 72px);
+    /* 舊變數名別名（避免漏改處變色不一致） */
+    --bg-2:var(--brand-tint);
+    --accent:var(--brand); --accent-dark:var(--brand-dark); --accent-soft:var(--brand-tint);
+    --blue:var(--ice-dark); --blue-dark:var(--brand-dark); --blue-soft:var(--brand-tint);
+    --green:var(--ok); --red:var(--bad); --yellow:var(--warn);
+    /* 字型 */
+    --font-sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    --font-serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  }
+  html{font-size:clamp(14px, 0.85vw, 17px)}
+  *{box-sizing:border-box;-webkit-user-select:none;user-select:none}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-variant-numeric:tabular-nums;overflow:hidden}
+  input{-webkit-user-select:text;user-select:text}
+  button{font-family:inherit;cursor:pointer;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:.85rem;line-height:1.2;padding:0 .6rem;min-height:2rem;box-shadow:var(--shadow);display:inline-flex;align-items:center;justify-content:center;gap:.3em;white-space:nowrap}
+  button:hover{border-color:var(--brand);background:var(--brand-tint)}
+  button:active{transform:translateY(1px)}
+  button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  button.primary:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  button.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  button[hidden]{display:none}
+  .seg{display:inline-flex;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--card)}
+  .seg button{border:none;border-radius:0;box-shadow:none;min-height:1.9rem;padding:0 .7rem;font-weight:700}
+  .seg button+button{border-left:1px solid var(--line)}
+  .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;overflow:hidden}
+  .card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600;font-size:1rem;line-height:1.2;flex:none;font-family:var(--font-serif);letter-spacing:.04em}
+  .card-h .sub{font-size:.78rem;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-sans);letter-spacing:0}
+  .chip{display:inline-block;font-size:.72rem;font-weight:700;line-height:1;padding:.3em .55em;border-radius:999px;background:var(--brand-tint);color:var(--ink);white-space:nowrap}
+  .chip.ice{background:var(--brand-tint);color:var(--ink)}
+  .chip.hot{background:var(--brand-soft);color:var(--ink)}
+  .chip.sweet{background:var(--brand-tint);color:var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:4px}
+
+  /* ===== 版面：滿版流動網格 ===== */
+  #stage{position:fixed;inset:0;overflow:hidden}
+  #app{position:relative;width:100%;height:100%;display:grid;
+    grid-template-rows:56px minmax(150px,19vh) minmax(0,1fr) minmax(200px,27vh);
+    grid-template-columns:200px minmax(0,1fr) 320px;
+    grid-template-areas:"hud hud hud" "counter counter counter" "side work panel" "side bench panel";
+    background:var(--bg);overflow:hidden}
+  @media (max-width:1400px){#app{grid-template-columns:180px minmax(0,1fr) 280px}}
+  @media (max-width:1099px){#app{grid-template-columns:160px minmax(0,1fr) 240px}}
+
+  /* ---- A. HUD ---- */
+  #hud{grid-area:hud;display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--card);color:var(--ink);font-weight:700;font-size:.95rem;z-index:5;border-bottom:1px solid var(--line)}
+  #hud .brand{display:inline-flex;align-items:baseline;gap:.45em;margin-right:8px;white-space:nowrap;font-family:var(--font-serif);color:var(--ink);font-weight:500}
+  #hud .brand .logo-zh{font-size:1.25rem;letter-spacing:.12em;line-height:1}
+  #hud .brand .logo-en{font-size:.82rem;letter-spacing:.08em;color:var(--brand-dark);line-height:1}
+  #hud .stat{display:inline-flex;align-items:center;background:var(--brand-tint);color:var(--ink);padding:0 10px;height:32px;border-radius:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #hud .spacer{flex:1}
+  #hud button{height:36px;min-height:36px;background:var(--card);color:var(--brand-dark);border-color:var(--line);box-shadow:none;font-weight:700}
+  #hud button:hover{background:var(--brand-tint);border-color:var(--brand)}
+
+  /* ---- B. Counter ---- */
+  #counter{grid-area:counter;position:relative;display:flex;gap:12px;padding:6px 16px 8px;background:var(--bg);border-bottom:1px solid var(--line);overflow:hidden}
+  #counter-more{position:absolute;right:16px;top:6px;font-size:.75rem;color:var(--muted);font-weight:700}
+  .customer{position:relative;flex:1 1 200px;min-width:0;max-width:340px;display:flex;flex-direction:column;cursor:pointer;animation:enter .5s ease both;transition:opacity .5s,transform .5s;min-height:0}
+  @keyframes enter{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:none}}
+  .customer.leaving{opacity:0;transform:translateY(-20px);pointer-events:none}
+  .customer .bubble{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:5px 10px;box-shadow:var(--shadow);flex:none}
+  .customer .bubble::after{content:"";position:absolute;left:26px;bottom:-8px;border:7px solid transparent;border-top-color:var(--card);border-bottom:0}
+  .customer .bubble b{display:block;font-size:1rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .customer .bubble .meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+  .customer .patience{height:8px;background:var(--brand-tint);border-radius:4px;overflow:hidden;margin-top:4px}
+  .customer .patience .fill{height:100%;width:100%;background:var(--ok);transition:width .1s linear}
+  .customer .patience .fill.warn{background:var(--warn)}
+  .customer .patience .fill.late{background:var(--bad)}
+  .customer.over .patience{animation:blink .6s steps(2) infinite}
+  @keyframes blink{to{background:rgba(217,119,107,.35)}}
+  .customer.current .bubble{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+  .customer .person{display:flex;align-items:flex-end;gap:8px;padding:6px 0 0 10px;flex:1;min-height:0}
+  .customer .avatar{display:flex;flex-direction:column;align-items:center;flex:none}
+  .customer .face{width:var(--face);height:var(--face);border-radius:50%;background:var(--brand-tint);display:flex;align-items:center;justify-content:center;font-size:calc(var(--face) * .58);border:3px solid var(--card);box-shadow:var(--shadow);position:relative;z-index:1}
+  .customer.accepted .face{border-color:var(--brand)}
+  .customer .body{width:calc(var(--face) * .7);height:8px;margin-top:-3px;border-radius:0 0 6px 6px;background:var(--c,var(--brand))}
+  .customer .tags{display:flex;flex-direction:column;gap:4px;align-items:flex-start;padding-bottom:6px}
+  .customer .badge{display:none;background:var(--brand-soft);color:var(--ink);font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:999px;line-height:1}
+  .customer.accepted .badge{display:inline-block}
+  .customer.current .badge{background:var(--brand);color:#fff}
+  .customer .hint{font-size:.75rem;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+  .customer.over .hint{color:var(--bad)}
+
+  /* ---- C. 左側：店員／待做 ---- */
+  #staff{grid-area:side;background:var(--brand-tint);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:10px;min-height:0}
+  #staff .staff-face{position:relative;width:96px;height:96px;margin:0 auto;border-radius:50%;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:56px;border:4px solid var(--card);box-shadow:var(--shadow);flex:none}
+  #staff .staff-action{position:absolute;right:-6px;bottom:-4px;width:38px;height:38px;border-radius:50%;background:var(--card);display:none;align-items:center;justify-content:center;font-size:22px;border:1px solid var(--line);box-shadow:var(--shadow);animation:wiggle .5s ease-in-out infinite alternate}
+  #staff.busy .staff-action{display:flex}
+  @keyframes wiggle{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+  #staff h4{margin:4px 0 0;font-size:.8rem;color:var(--muted);font-weight:700}
+  #queue-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;overflow:auto;min-height:0}
+  #queue-list li{background:var(--card);border-radius:10px;padding:8px 10px;font-size:.85rem;border:1px solid var(--line);cursor:pointer;line-height:1.3}
+  #queue-list li.current{border-color:var(--brand);background:var(--card);box-shadow:0 0 0 1px var(--brand)}
+  #queue-list li small{display:block;color:var(--muted);font-size:.72rem;margin-top:2px}
+  #queue-list .empty{color:var(--muted);font-size:.8rem;text-align:center;padding:12px 0;border:1px dashed var(--brand-soft);border-radius:10px;background:transparent;cursor:default}
+
+  /* ---- D. 工作區：四張卡 ---- */
+  #work{grid-area:work;display:flex;gap:12px;padding:16px 16px 8px;min-width:0;min-height:0}
+  #work>.card{flex:1 1 0}
+  #work>.cupbox{flex:1.1 1 0}
+  #work>#vessel-slot{flex:2.6 1 0}
+  #work .row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;flex:none}
+  #work .row button{min-width:0;padding:0 .2rem;font-weight:700;min-height:1.8rem}
+
+  /* 2.1 成品紙杯 */
+  .cupbox{text-align:center}
+  .cupbox .card-h{gap:4px;row-gap:4px;flex-wrap:wrap;justify-content:center}
+  .cupbox .segs{display:flex;gap:4px}
+  .cupbox .seg button{padding:0 .5rem;min-height:1.7rem;font-size:.8rem}
+  .cup-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:2px 0}
+  #cup{position:relative;height:100%;max-height:220px;aspect-ratio:11/15;max-width:100%;border:3px solid var(--brand-soft);border-top-width:5px;border-radius:8px 8px 30px 30px;background:var(--card);overflow:hidden;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+  #cup.hot{border-color:var(--warn)}
+  #cup.sel{box-shadow:0 0 0 3px var(--brand)}
+  #cup.drop{outline:4px dashed var(--brand);outline-offset:2px}
+  #cup .vact{position:absolute;right:4px;top:4px;font-size:22px;z-index:3;animation:wiggle .5s ease-in-out infinite alternate}
+  #cup .vact[hidden]{display:none}
+  #cup .liquid{position:absolute;left:0;bottom:0;width:100%;height:0;background:var(--brand-soft);transition:height .3s,background .3s,bottom .3s}
+  #cup .liquid::before{content:"";position:absolute;left:0;top:0;width:100%;height:6px;background:rgba(255,255,255,.35)}
+  #cup .ice{position:absolute;left:0;bottom:0;width:100%;height:0;transition:height .2s;background-color:var(--ice);opacity:.9;border-top:2px solid rgba(255,255,255,.9)}
+  #cup .icons{position:absolute;left:0;right:0;bottom:6px;font-size:16px;letter-spacing:2px;z-index:2}
+  #cup-total{font-weight:700;font-size:1rem;color:var(--ink);line-height:1.2;flex:none;font-variant-numeric:tabular-nums}
+
+  /* 2.2 目前容器 */
+  #vessel-tabs{display:flex;gap:6px;flex:none}
+  .vessel-tab{flex:1 1 0;min-width:0;min-height:2.4rem;padding:0 .3rem;font-size:.8rem;font-weight:700;background:var(--card);color:var(--muted);position:relative;box-shadow:none;gap:.2em;overflow:visible}
+  .vessel-tab .vt-e{font-size:1.1rem;line-height:1}
+  .vessel-tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .vessel-tab.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  .vessel-tab .dot{position:absolute;right:-5px;top:-7px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--brand-dark);color:#fff;font-size:.68rem;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid var(--card)}
+  .vessel-tab.has .dot{display:flex}
+  .vs-body{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:8px;min-height:0}
+  #vessel-view{position:relative;background:var(--brand-tint);border:1px solid var(--line);border-radius:10px;padding:8px 8px 10px;text-align:center;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:0;cursor:default}
+  #vessel-view.drop{outline:4px dashed var(--brand);outline-offset:-4px}
+  #vessel-view .vv-fig{position:relative;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--brand) calc(var(--p,0) * 1%),var(--brand-soft) 0);padding:4px;flex:none;box-shadow:var(--shadow)}
+  #vessel-view .vv-emoji{width:100%;height:100%;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:2rem;line-height:1}
+  #vessel-view .vv-name{font-size:1rem;font-weight:600;line-height:1.2;margin-top:4px;font-family:var(--font-serif);letter-spacing:.04em}
+  #vessel-view .vv-sum{font-size:.8rem;color:var(--muted);font-weight:700}
+  /* v6：內容摘要改單行（前兩項＋「等 N 項」），超出以 … 收尾；完整清單在右側面板 */
+  #vessel-view .vv-items{font-size:.74rem;color:var(--ink);line-height:1.3;width:100%;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #vessel-view .vv-hint{font-size:.72rem;color:var(--muted)}
+  #vessel-view .vv-hint[hidden]{display:none}
+  #vessel-view .vv-action{position:absolute;right:6px;top:4px;font-size:1.4rem;animation:wiggle .5s ease-in-out infinite alternate;z-index:2}
+  #vessel-view .vv-action[hidden]{display:none}
+  #action-progress{position:absolute;left:0;right:0;bottom:0;height:18px;background:rgba(255,255,255,.8);display:none}
+  #vessel-view.busy #action-progress{display:block}
+  #action-progress .bar{height:100%;width:0;background:var(--brand);transition:width .05s linear}
+  #action-progress .lbl{position:absolute;inset:0;font-size:.7rem;text-align:center;line-height:18px;color:var(--ink);font-weight:700}
+  /* v6 設備一律可見：3 欄網格（7 顆動作＋熱水快捷佔 2 格＝3 列）；不適用於目前容器者 .na 變淡＋disabled */
+  #vessel-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(42px,1fr);gap:6px;min-height:0;height:100%;max-height:210px;align-self:start}
+  #vessel-actions button{min-height:0;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px 3px;font-weight:700;white-space:nowrap}
+  #vessel-actions button .ae{font-size:1rem;line-height:1.1}
+  #vessel-actions button .al{font-size:.74rem;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  #vessel-actions button .av{font-size:.62rem;line-height:1.2;font-weight:600;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  #vessel-actions button.na{opacity:.45;background:var(--brand-tint);border-style:dashed}
+  #vessel-actions button.na .av{color:var(--brand-dark)}
+  #brew-panel{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
+  #brew-panel .brew-water{background:var(--brand-tint);border-color:var(--brand-soft)}
+  @media (max-height:760px){
+    #vessel-view .vv-fig{width:52px;height:52px}
+    #vessel-view .vv-emoji{font-size:1.6rem}
+  }
+  .pour-row{display:flex;gap:8px;min-height:2.6rem;flex:none}
+  .pour-row button{flex:1 1 0;min-height:2.6rem;font-weight:800;font-size:.9rem}
+  .pour-row .pour-note{flex:1;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted)}
+  .pour-row .pour-note[hidden]{display:none}
+
+  /* 2.3 量杯 */
+  #measure{cursor:grab}
+  #measure.dragging{opacity:.5;cursor:grabbing}
+  .m-body{position:relative;flex:1;min-height:52px;border:3px solid var(--brand-soft);border-top-width:4px;border-radius:4px 4px 10px 10px;background:var(--card);overflow:hidden}
+  .m-body .liquid{position:absolute;left:0;bottom:0;width:100%;height:0;background:var(--ice);transition:height .1s}
+  #measure-ml{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.8);font-variant-numeric:tabular-nums}
+  .m-unit{position:absolute;right:6px;bottom:4px;font-size:.72rem;color:var(--muted)}
+  #m-fill{background:var(--ice-dark);color:#fff;border-color:var(--ice-dark);min-height:2.4rem;font-weight:700;flex:none}
+  #m-fill:hover,#m-fill.filling{background:var(--brand-dark);border-color:var(--brand-dark)}
+  #btn-pour{background:var(--brand);color:#fff;border-color:var(--brand)}
+  #btn-pour:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+
+  /* 2.4 冰量 */
+  #ice-panel{background:var(--card);border-color:var(--line)}
+  .ice-cup{position:relative;flex:1;min-height:44px;border:3px solid var(--brand-soft);border-top-width:4px;border-radius:4px 4px 10px 10px;background:var(--card);overflow:hidden}
+  .ice-cup .ice{position:absolute;left:0;bottom:0;width:100%;height:0;transition:height .1s;background-color:var(--ice);opacity:.9}
+  #ice-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.8);font-variant-numeric:tabular-nums}
+  #ice-fill{background:var(--ice-dark);color:#fff;border-color:var(--ice-dark);min-height:2.4rem;font-weight:700;flex:none}
+  #ice-fill:hover,#ice-fill.filling{background:var(--brand-dark);border-color:var(--brand-dark)}
+  #ice-panel .ice-preset.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  #ice-clear{background:transparent;border-color:transparent;box-shadow:none;color:var(--muted);font-weight:700;min-height:1.6rem;flex:none}
+  #ice-clear:hover{background:var(--brand-tint);border-color:transparent;color:var(--ink)}
+
+  /* ---- F. 素材工作台 ---- */
+  #bench{grid-area:bench;display:flex;flex-direction:column;gap:8px;padding:8px 16px 16px;min-width:0;min-height:0}
+  .tabs-row{display:flex;align-items:center;gap:10px;flex:none;min-width:0}
+  .tabs{display:flex;gap:6px;flex-wrap:nowrap}
+  .tab{padding:0 .9rem;min-height:2rem;font-weight:700;font-size:.85rem;border-radius:999px;background:var(--card);color:var(--muted)}
+  .tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .tab.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  #bench-hint{margin-left:auto;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #panels{flex:1;min-height:0;display:flex}
+  .panel{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));grid-auto-rows:minmax(72px,1fr);gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow:auto;min-height:0;min-width:0}
+  .panel[hidden]{display:none}
+  .ing{position:relative;border-radius:10px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:6px 4px 9px;box-shadow:var(--shadow);transition:transform .08s,border-color .1s;overflow:hidden;min-height:0;min-width:0}
+  .ing:hover{transform:translateY(-2px);border-color:var(--brand)}
+  .ing .sw{width:30px;height:30px;border-radius:50%;background:var(--c,var(--brand-soft));display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid rgba(43,68,96,.06);flex:none}
+  .ing .nm{flex:none;font-size:.85rem;font-weight:700;line-height:1.15;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .ing .sub{flex:none;font-size:.7rem;color:var(--muted);font-weight:500;line-height:1}
+  .ing[data-kind=liquid] .sw{border-radius:8px}
+  .ing[data-kind=liquid]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--c,var(--brand-soft))}
+  /* 視窗較矮時：素材格改橫排，確保兩列都放得下且名稱不被壓掉 */
+  @media (max-height:800px){
+    .panel{grid-auto-rows:minmax(46px,1fr);grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+    .ing{flex-direction:row;justify-content:flex-start;gap:6px;padding:4px 6px 7px}
+    .ing .sw{width:26px;height:26px;font-size:15px}
+    .ing .nm{text-align:left;flex:1 1 auto;min-width:0;font-size:.78rem}
+    .ing .sub{display:none}
+  }
+  .ing.mounted{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
+  .ing.mounted::before{content:"量杯";position:absolute;right:4px;top:4px;font-size:.65rem;font-weight:700;color:#fff;background:var(--brand);border-radius:999px;padding:2px 6px;line-height:1;z-index:1}
+  .ing.drop{border-color:var(--brand-dark);background:var(--brand-tint)}
+
+  /* ---- E. 右側面板 ---- */
+  /* v6：右側面板改直向 grid，訂單卡／撤銷列／收尾／送出固定高，#cup-list 吃剩餘空間並自行捲動 */
+  #panel{grid-area:panel;background:var(--brand-tint);border-left:1px solid var(--line);padding:16px 12px;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto;align-content:stretch;gap:10px;min-height:0;min-width:0;overflow:hidden}
+  #panel .order{gap:4px;flex:none}
+  #order-title{font-size:1.1rem;font-weight:600;line-height:1.3;min-height:2.6rem;font-family:var(--font-serif);letter-spacing:.03em}
+  #order-title .o-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #order-title .chips{margin-top:4px;font-family:var(--font-sans);letter-spacing:0}
+  #order-title .o-none{color:var(--muted);font-weight:600;font-size:1rem}
+  #order-hint{font-size:.78rem;color:var(--muted);line-height:1.3}
+  #cup-list{list-style:none;margin:0;padding:6px 8px;flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;background:var(--card);border-radius:var(--r);border:1px solid var(--line);font-size:.85rem}
+  #cup-list li{padding:4px 4px;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px;line-height:1.3}
+  #cup-list li:last-child{border-bottom:none}
+  #cup-list li .q{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  #cup-list li.vhead{color:var(--muted);font-weight:700;font-size:.75rem;letter-spacing:.5px;border-bottom:1px solid var(--line);margin-top:8px;padding-bottom:2px;justify-content:flex-start;gap:4px}
+  #cup-list li.vhead:first-child{margin-top:0}
+  #cup-list li.item,#cup-list li.vitem{padding-left:8px}
+  #cup-list li.none{color:var(--muted);font-size:.78rem;padding-left:8px;justify-content:flex-start}
+  #cup-list li.act{color:var(--brand-dark);justify-content:flex-start;flex-wrap:wrap;gap:4px;margin-top:8px;border-top:1px solid var(--line);border-bottom:none;padding-top:6px;font-size:.78rem;font-weight:700;align-items:center}
+  #cup-list li.fin{color:var(--ink);font-weight:700;justify-content:flex-start;border-bottom:none;font-size:.82rem}
+  #cup-list li.empty{color:var(--muted);text-align:center;border:none;padding:24px 0;justify-content:center;font-size:.8rem}
+  .pbtns{display:flex;gap:8px;flex:none}
+  .pbtns button{flex:1;font-weight:700}
+  #finish-panel{display:flex;align-items:center;gap:8px;flex:none}
+  #finish-panel .cap{font-size:.85rem;font-weight:700;color:var(--ink);flex:none}
+  #finish-panel .seg{flex:1;display:flex}
+  #finish-panel .seg button{flex:1;padding:0 .3rem;font-size:.82rem}
+  #btn-serve{height:56px;min-height:56px;font-size:1.2rem;font-weight:700;letter-spacing:3px;flex:none;border-radius:14px}
+
+  /* ---- Modals & overlays ---- */
+  .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(43,68,96,.35);z-index:60;padding:16px;overflow:hidden}
+  /* v6：所有 modal 的 .box 都是直向 flex、最高 92vh（且不超過 modal 內容區），內容過多時 box 本身捲動；配方表的清單另設 flex:1 自行捲動 */
+  .modal .box{background:var(--card);border-radius:16px;padding:24px;width:min(720px,100%);max-width:720px;max-height:min(92vh,100%);min-height:0;display:flex;flex-direction:column;overflow:auto;box-shadow:0 8px 32px rgba(43,68,96,.16);border:1px solid var(--line)}
+  .modal .box>*{flex:none}
+  .box h2{margin:0 0 12px;font-size:1.25rem;font-family:var(--font-serif);font-weight:600;letter-spacing:.04em;color:var(--ink)}
+  .box .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  .box .actions button{min-height:2.5rem;padding:0 1.2rem;font-size:.95rem;font-weight:700}
+  /* 開始畫面：品牌藍滿版底＋中央白色襯線字標，白卡放 Day 卡與說明 */
+  #modal-start{background:var(--brand);flex-direction:column;gap:18px}
+  #modal-start .box{text-align:center;flex:0 1 auto}
+  #modal-start .logo{display:flex;flex-direction:column;align-items:center;gap:.35em;color:#fff;font-family:var(--font-serif);font-weight:500;line-height:1;margin-bottom:0;flex:none}
+  #modal-start .logo .logo-zh{font-size:3.2rem;letter-spacing:.18em;text-indent:.18em}
+  #modal-start .logo .logo-en{font-size:1.05rem;letter-spacing:.24em;text-indent:.24em;text-transform:uppercase;opacity:.92}
+  #modal-start .logo .logo-rule{width:36px;height:1px;background:rgba(255,255,255,.7);margin:.2em 0}
+  #modal-start .box h2{font-size:1.15rem;margin-bottom:4px}
+  #modal-start .tag{color:var(--muted);font-size:.85rem}
+  #modal-start .days{display:flex;gap:8px;justify-content:center;margin:16px 0}
+  .day-btn{flex:1 1 0;min-height:72px;font-size:.95rem;font-weight:700;padding:6px 4px;flex-direction:column;gap:2px;white-space:normal}
+  .day-btn small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);line-height:1.3}
+  .day-btn.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .day-btn.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  .day-btn.on small{color:rgba(255,255,255,.9)}
+  .how3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:left}
+  .how3 .step{background:var(--brand-tint);border-radius:12px;padding:12px;font-size:.85rem;line-height:1.5;color:var(--ink)}
+  .how3 .step .ic{font-size:1.6rem;line-height:1;margin-bottom:6px}
+  .how3 .step b{display:block;color:var(--ink);margin-bottom:2px;font-family:var(--font-serif)}
+  .how-line{margin-top:10px;font-size:.8rem;color:var(--muted);line-height:1.5;text-align:left}
+  #modal-recipes .box{height:min(640px,92vh,100%);overflow:hidden}
+  #modal-recipes .rhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  #recipe-search{flex:1;min-width:160px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);font-size:.9rem;font-family:inherit}
+  .rtabs{display:flex;gap:4px;flex-wrap:wrap;margin:10px 0}
+  .rtabs[hidden],#recipe-list[hidden],#recipe-search[hidden],#memo-panel[hidden]{display:none}
+  .rtab{font-size:.78rem;min-height:1.7rem;padding:0 .6rem;border-radius:999px}
+  .rtab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .rtab.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  /* 速記法分頁 */
+  .rmode{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .rmode button{border:0;border-radius:0;background:transparent;padding:6px 12px;font-size:.85rem;font-weight:700;color:var(--muted)}
+  .rmode button.on{background:var(--brand);color:#fff}
+  .rmode button.on:hover{background:var(--brand-dark)}
+  #memo-panel{overflow-y:auto;flex:1 1 0;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:6px 18px 18px;font-size:.9rem;line-height:1.6}
+  #memo-panel .m-h{font-size:1.02rem;margin:16px 0 6px;color:var(--ink);border-bottom:2px solid var(--brand);padding-bottom:4px;font-family:var(--font-serif);font-weight:600;letter-spacing:.04em}
+  #memo-panel .m-t{border-collapse:collapse;width:100%;font-size:.85rem;margin:6px 0 8px}
+  #memo-panel .m-t th,#memo-panel .m-t td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+  #memo-panel .m-t th{background:var(--brand-tint);font-size:.78rem;color:var(--muted)}
+  #memo-panel .m-t td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+  #memo-panel .m-motto{font-weight:700;border-left:4px solid var(--brand);background:var(--brand-tint);color:var(--ink);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0;font-family:var(--font-serif);letter-spacing:.04em}
+  #memo-panel .m-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+  #memo-panel .m-rule{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--card)}
+  #memo-panel .m-rule>b{display:block;margin-bottom:2px}
+  #memo-panel .m-ex{font-size:.8rem;color:var(--muted);margin-top:4px}
+  #memo-panel .m-chip{display:inline-block;font-size:.74rem;padding:0 7px;border-radius:999px;background:var(--brand-tint);color:var(--ink);font-weight:700;margin:1px 4px 1px 0}
+  #memo-panel .m-chip.warn{background:var(--brand-dark);color:#fff}
+  #memo-panel .m-chip.num{background:var(--brand-soft);color:var(--ink);font-variant-numeric:tabular-nums}
+  #memo-panel .m-tpl{background:var(--brand-tint);border:1px dashed var(--brand-soft);border-radius:8px;padding:6px 10px;margin:4px 0 6px}
+  #memo-panel .fam{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;background:var(--card);scroll-margin-top:52px}
+  #memo-panel .fam.hl{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);background:var(--brand-tint)}
+  #memo-panel .fam h4{margin:0 0 4px;font-size:.98rem;font-family:var(--font-serif);font-weight:600;letter-spacing:.03em}
+  #memo-panel .fam h4 small{font-weight:500;color:var(--muted);margin-left:6px;font-size:.78rem;font-family:var(--font-sans);letter-spacing:0}
+  #memo-panel ul{margin:4px 0;padding-left:18px}
+  #memo-panel li{margin:2px 0}
+  #memo-panel .memo-now{position:sticky;top:0;z-index:1;background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;margin:8px 0 4px}
+  #modal-recipes .box>#recipe-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1 1 0;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  .recipe-row{padding:0 12px;border-bottom:1px solid var(--line);cursor:pointer}
+  .recipe-row:hover{background:var(--bg)}
+  .recipe-row.current{background:var(--brand-tint);border-left:4px solid var(--brand)}
+  .recipe-row .r-head{display:flex;gap:10px;align-items:center;font-size:.9rem;font-weight:700;min-height:44px}
+  .recipe-row .r-head .cat{font-size:.72rem;color:var(--muted);font-weight:500;background:var(--brand-tint);border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .recipe-row .r-head .sw{margin-left:auto;font-size:.75rem;color:var(--muted);font-weight:500;white-space:nowrap}
+  .recipe-row .r-body{display:none;margin:0 0 10px;font-size:.85rem;color:var(--ink);line-height:1.55;background:var(--brand-tint);border-radius:8px;padding:10px 12px}
+  .recipe-row.open .r-body{display:block}
+  .recipe-row .r-body .steps{font-weight:700;color:var(--ink)}
+  .recipe-row .r-body .sv{color:var(--brand-dark);font-weight:700}
+  .recipe-row .r-body .vline{color:var(--ink);background:var(--brand-soft);border-radius:6px;padding:4px 8px;margin:4px 0}
+  .recipe-row .r-body .qrow{display:grid;grid-template-columns:3em 1fr;gap:6px;align-items:start;margin:8px 0 2px}
+  .recipe-row .r-body .qrow>b{color:var(--brand-dark);font-family:var(--font-serif,inherit);padding-top:3px}
+  .recipe-row .r-body .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .recipe-row .r-body .qc{display:inline-flex;align-items:baseline;gap:4px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:.86rem;line-height:1.3}
+  .recipe-row .r-body .qc em{font-style:normal;font-weight:800;color:var(--brand-dark);font-variant-numeric:tabular-nums;font-size:.95rem}
+  .recipe-row .r-body .qc i{font-style:normal;font-size:.68rem;color:var(--muted);background:var(--brand-tint);border-radius:4px;padding:0 4px;margin-right:2px}
+  .recipe-row .r-body .r-memo{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);display:grid;grid-template-columns:3em 1fr;gap:6px;align-items:start}
+  .recipe-row .r-body .r-memo b{color:var(--brand-dark);font-family:var(--font-serif,inherit)}
+  .recipe-row .r-body .r-memo ul{margin:0;padding-left:1.1em;color:var(--ink)}
+  .recipe-row .r-body .r-memo li{margin:1px 0}
+  .timer-note{font-size:.78rem;color:var(--brand-dark);font-weight:700;background:var(--brand-tint);border-radius:999px;padding:.3em .7em;white-space:nowrap}
+  #modal-result .box{width:min(460px,100%);text-align:center}
+  #modal-result .stars{font-size:2.4rem;color:var(--brand-dark);letter-spacing:3px;line-height:1.1;margin:4px 0 10px}
+  #modal-result .stars .off{color:var(--line)}
+  .score3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+  .score3 div{background:var(--brand-tint);border-radius:10px;padding:8px 4px}
+  .score3 small{display:block;font-size:.72rem;color:var(--muted);font-weight:700}
+  .score3 b{font-size:1.4rem;font-variant-numeric:tabular-nums}
+  #modal-result .grid{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;text-align:left;font-size:.85rem;margin:8px 0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  #modal-result .money{font-size:1.5rem;font-weight:700;color:var(--brand-dark);font-variant-numeric:tabular-nums}
+  #modal-result ul{text-align:left;font-size:.82rem;color:var(--bad);margin:8px 0 0;padding-left:18px;max-height:140px;overflow:auto}
+  #modal-result .perfect{color:var(--ok);font-weight:700}
+  #modal-day-end .box{width:min(460px,100%);text-align:center}
+  #modal-day-end .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;text-align:left;font-size:.95rem;margin:10px 0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  #modal-qty .box{width:min(400px,100%);text-align:center}
+  #qty-val{font-size:2.5rem;font-weight:700;margin:6px 0;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .qty-steps{display:flex;gap:6px;justify-content:center;margin:6px 0}
+  .qty-steps button{min-width:44px;font-weight:700}
+  .qty-presets{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+  .qty-presets button{background:var(--brand-tint);border-color:var(--brand-soft);font-weight:700;padding:0 .8rem}
+  #pause-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(136,174,220,.35);z-index:55;color:var(--ink);font-size:2.6rem;font-weight:600;letter-spacing:6px;cursor:pointer;flex-direction:column;font-family:var(--font-serif);backdrop-filter:blur(2px)}
+  #pause-overlay small{font-size:1rem;letter-spacing:1px;font-weight:500;margin-top:10px;opacity:.8;font-family:var(--font-sans)}
+  #toast{position:absolute;left:50%;top:32%;transform:translateX(-50%);background:rgba(43,68,96,.92);color:#fff;padding:10px 18px;border-radius:12px;font-size:.95rem;font-weight:700;display:none;z-index:70;pointer-events:none;max-width:600px;text-align:center}
+  #ghost{position:absolute;display:none;z-index:80;pointer-events:none;width:70px;height:80px;border:3px solid var(--brand);border-radius:4px 4px 10px 10px;background:rgba(255,255,255,.85);text-align:center;font-weight:700;font-size:1.1rem;line-height:76px;transform:translate(-35px,-40px);box-shadow:0 8px 20px rgba(43,68,96,.2);color:var(--ink)}
+
+  /* 矮視窗：縮小間距 */
+  @media (max-height:700px){
+    .card{padding:8px;gap:6px}
+    #work{padding:10px 16px 6px}
+    #work .row button{min-height:1.6rem}
+    #m-fill,#ice-fill{min-height:2rem}
+    .ice-cup{min-height:36px}
+    .m-body{min-height:40px}
+    #vessel-view .vv-fig{width:48px;height:48px}
+    #vessel-view .vv-emoji{font-size:1.5rem}
+    #vessel-actions{grid-auto-rows:minmax(38px,1fr)}
+  }
+
+  /* ===== v5 手機／平板直向（≤ 820px）：單欄直向捲動（見 PLAN-v5-mobile.md）。以下只新增、不改桌機規則 ===== */
+  #btn-recipes-dock{display:none}   /* 手機版底部送出列的配方表快捷鍵；桌機不顯示 */
+  @media (max-width:820px), (pointer:coarse){
+    button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    #m-fill,#ice-fill{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  }
+  @media (max-width:820px){
+    html{-webkit-text-size-adjust:100%;text-size-adjust:100%;height:auto;overflow-x:hidden;overflow-y:auto}
+    body{height:auto;min-height:100%;overflow:visible}
+    #stage{position:static;inset:auto;overflow:visible}
+    #app{height:auto;min-height:100vh;display:flex;flex-direction:column;overflow:visible;
+      padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+    /* 底部送出列的底色（純色，不用漸層） */
+    #app::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(72px + env(safe-area-inset-bottom));background:rgba(246,249,253,.96);border-top:1px solid var(--line);z-index:39;pointer-events:none}
+
+    /* 1. HUD：兩列（字標＋狀態／四顆按鈕） */
+    #hud{flex:none;flex-wrap:wrap;height:auto;gap:6px;padding:8px 8px;padding-top:max(8px, env(safe-area-inset-top));font-size:.9rem}
+    #hud .brand{margin-right:2px}
+    #hud .stat{padding:0 8px;height:30px}
+    #hud .spacer{flex:0 0 100%;height:0}
+    #hud button{flex:1 1 0;min-width:0;height:40px;min-height:40px;padding:0 .3rem}
+
+    /* 2. 櫃台：客人水平捲動條 */
+    #counter{flex:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:8px;-webkit-overflow-scrolling:touch;
+      gap:10px;padding:8px;min-height:128px}
+    #counter-more{right:8px;top:2px}
+    .customer{flex:0 0 180px;max-width:none;scroll-snap-align:start}
+
+    /* 3. 待做清單：隱藏店員頭像，清單改一列小膠囊 */
+    #staff{flex:none;min-height:auto;padding:8px;gap:6px;border-right:0;border-bottom:1px solid var(--line)}
+    #staff .staff-face{display:none}
+    #staff h4{margin:0}
+    #queue-list{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:6px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+    #queue-list li{flex:none;max-width:230px;height:40px;line-height:38px;padding:0 14px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #queue-list li small{display:inline;margin:0 0 0 6px}
+    #queue-list .empty{flex:1 1 auto;max-width:none;padding:0 14px}
+
+    /* 4. 工作區：容器全寬 → 量杯｜冰量 → 精簡紙杯條 */
+    #work{flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      grid-template-areas:"vs vs" "m i" "cup cup";gap:8px;padding:8px}
+    #work>#vessel-slot{grid-area:vs}
+    #work>#measure{grid-area:m}
+    #work>#ice-panel{grid-area:i}
+    #work>.cupbox{grid-area:cup}
+    #work .row button{min-height:44px}
+
+    /* 4a. 目前容器 */
+    .vessel-tab{min-height:44px}
+    .vs-body{flex:none;grid-template-columns:minmax(0,1fr)}
+    #vessel-view{display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:10px;row-gap:0;align-items:center;text-align:left;padding:8px 10px 20px;min-height:84px}
+    #vessel-view .vv-fig{grid-column:1;grid-row:1 / span 4;width:48px;height:48px}
+    #vessel-view .vv-emoji{font-size:1.5rem}
+    #vessel-view>.vv-name,#vessel-view>.vv-sum,#vessel-view>.vv-items,#vessel-view>.vv-hint{grid-column:2;margin-top:0}
+    #vessel-actions{height:auto;max-height:none;align-self:stretch;grid-auto-rows:minmax(48px,auto)}
+    #vessel-actions button{height:auto;min-height:48px}
+    .pour-row,.pour-row button{min-height:44px}
+
+    /* 4b. 量杯｜冰量並排 */
+    .m-body{flex:1 1 auto;min-height:64px}
+    .ice-cup{flex:1 1 auto;min-height:56px}
+    #measure-ml,#ice-pct{font-size:1.7rem}
+    #m-fill,#ice-fill{min-height:48px}
+    #ice-clear{min-height:40px}
+
+    /* 4c. 成品紙杯：橫向精簡條 */
+    #work>.cupbox{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:12px;row-gap:6px;align-items:center;text-align:left;padding:8px 12px}
+    .cupbox .cup-wrap{grid-column:1;grid-row:1 / span 2;padding:0}
+    .cupbox .card-h{grid-column:2;justify-content:space-between}
+    #cup-total{grid-column:2}
+    #cup{flex:none;width:64px;height:88px;max-width:none;max-height:none;aspect-ratio:auto}
+    #work .cupbox .seg button{min-width:44px;height:40px;min-height:40px}
+
+    /* 5. 素材台：分頁可水平捲動、格高 ≥ 56 */
+    #bench{flex:none;min-height:auto;padding:8px}
+    .tabs-row{flex-wrap:wrap;gap:6px}
+    .tabs{flex:1 1 100%;min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+    .tab{flex:none;min-height:40px;padding:0 .8rem}
+    #bench-hint{margin-left:0;flex:1 1 100%;white-space:normal}
+    #panels{flex:none}
+    .panel{flex:1 1 auto;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));grid-auto-rows:minmax(64px,auto);gap:6px;padding:8px}
+    .ing{flex-direction:column;justify-content:center;gap:2px;padding:6px 4px 9px;min-height:56px}
+    .ing .sw{width:28px;height:28px;font-size:16px}
+    .ing .nm{text-align:center;flex:none;font-size:.8rem}
+    .ing .sub{display:block}
+
+    /* 6. 面板 */
+    #panel{flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 8px;border-left:0;border-top:1px solid var(--line);overflow:visible}
+    #cup-list{flex:none;min-height:90px;max-height:40vh}
+    .pbtns button{min-height:44px}
+    #finish-panel .seg button{min-height:44px}
+
+    /* 7. 送出列固定在畫面底部 */
+    #btn-serve{position:fixed;z-index:40;left:72px;width:calc(100% - 80px);bottom:calc(8px + env(safe-area-inset-bottom));height:56px;min-height:56px}
+    #btn-recipes-dock{display:inline-flex;position:fixed;z-index:40;left:8px;bottom:calc(8px + env(safe-area-inset-bottom));width:56px;height:56px;min-height:56px;padding:0;font-size:1.5rem;border-radius:14px;color:var(--brand-dark)}
+
+    /* Modal／浮層：改相對視窗固定，內部捲動 */
+    .modal{position:fixed;padding:max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom))}
+    .modal .box{width:calc(100vw - 16px);max-width:min(720px,100%);max-height:min(92vh,100%);padding:16px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .box .actions{flex-wrap:wrap}
+    .box .actions button{min-height:44px}
+    #pause-overlay{position:fixed;font-size:2rem}
+    #toast{position:fixed;top:30%;left:16px;right:16px;transform:none;width:fit-content;max-width:none;margin:0 auto}
+    /* 開始畫面 */
+    #modal-start{gap:12px}
+    #modal-start .logo .logo-zh{font-size:2.4rem}
+    #modal-start .logo .logo-en{font-size:.9rem}
+    #modal-start .days{flex-wrap:wrap;margin:12px 0}
+    .day-btn{flex:1 1 56px;min-width:56px;min-height:60px}
+    .how3{grid-template-columns:minmax(0,1fr);gap:8px}
+    .how3 .step{padding:10px 12px}
+    /* 配方表 */
+    #modal-recipes .box{height:min(92vh,100%)}
+    #modal-recipes .rhead{gap:6px}
+    #recipe-search{font-size:16px;min-width:0;flex:1 1 140px;min-height:40px}
+    .rmode button{min-height:40px}
+    #btn-recipes-close{min-height:40px}
+    .rtabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin:8px 0;padding-bottom:2px;flex:none}
+    .rtab{flex:none;min-height:36px}
+    #memo-panel{padding:6px 12px 12px}
+    #memo-panel .m-t td.n{white-space:normal}
+    #memo-panel .m-rules{grid-template-columns:minmax(0,1fr)}
+    /* 數量選擇器 */
+    .qty-steps{flex-wrap:wrap}
+    .qty-steps button,.qty-presets button{min-height:44px}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="app">
+  <!-- A. HUD -->
+  <header id="hud">
+    <span class="brand"><span class="logo-zh">樂法</span><span class="logo-en">Le Phare</span></span>
+    <span class="stat" id="hud-day">Day 1</span>
+    <span class="stat" id="hud-cust">客人 0/8</span>
+    <span class="stat" id="hud-money">$ 0</span>
+    <span class="stat" id="hud-star">★ -</span>
+    <span class="spacer"></span>
+    <button id="btn-music" aria-pressed="true" title="背景音樂">🎵 音樂</button><button id="btn-sfx" aria-pressed="true" title="音效">🔊 音效</button>
+    <button id="btn-recipes">📖 配方表</button>
+    <button id="btn-pause">⏸ 暫停</button>
+  </header>
+
+  <!-- B. Counter -->
+  <section id="counter"><div id="counter-more"></div></section>
+
+  <!-- C. 左側：店員／待做清單 -->
+  <aside id="staff">
+    <div class="staff-face">👩‍🍳<div class="staff-action" id="staff-action"></div></div>
+    <h4>待做清單（最多 3）</h4>
+    <ul id="queue-list"></ul>
+  </aside>
+
+  <!-- D. 工作區：成品紙杯｜目前容器｜量杯｜冰量 -->
+  <section id="work">
+    <div class="card cupbox">
+      <div class="card-h">
+        <span>成品紙杯</span>
+        <span class="segs">
+          <span class="seg"><button id="cup-size-M">M</button><button id="cup-size-L">L</button></span>
+          <span class="seg"><button id="cup-temp-cold">冰</button><button id="cup-temp-hot">熱</button></span>
+        </span>
+      </div>
+      <div class="cup-wrap">
+        <div id="cup" title="紙杯（成品杯）：點擊切到紙杯；拖量杯到這裡倒入紙杯"><div class="ice"></div><div class="liquid"></div><div class="icons"></div><div class="vact" hidden></div></div>
+      </div>
+      <div id="cup-total">0 ml</div>
+    </div>
+
+    <div class="card" id="vessel-slot">
+      <div id="vessel-tabs">
+        <button class="vessel-tab" data-v="c" title="紙杯（杯底料）"><span class="vt-e">🥤</span>紙杯<span class="dot"></span></button>
+        <button class="vessel-tab" data-v="s" title="雪克杯：搖茶／蒸汽機加熱"><span class="vt-e">🫗</span>雪克杯<span class="dot"></span></button>
+        <button class="vessel-tab" data-v="b" title="果汁機：打冰沙"><span class="vt-e">🌀</span>果汁機<span class="dot"></span></button>
+        <button class="vessel-tab" data-v="t" title="萃茶機：茶包＋熱水"><span class="vt-e">☕</span>萃茶機<span class="dot"></span></button>
+      </div>
+      <div class="vs-body">
+        <div id="vessel-view" title="目前操作中的容器；拖量杯到這裡倒入此容器">
+          <div class="vv-action" hidden></div>
+          <div class="vv-fig"><div class="vv-emoji">🥤</div></div>
+          <div class="vv-name">紙杯</div>
+          <div class="vv-sum">0 項・0 ml</div>
+          <div class="vv-items"></div>
+          <div class="vv-hint">杯底料直接加在這裡</div>
+          <div id="action-progress"><div class="bar"></div><div class="lbl"></div></div>
+        </div>
+        <!-- v6：七顆設備一律可見；不適用於目前容器者 disabled＋變淡，小字 .av 標示所屬容器（renderButtons 填入） -->
+        <div id="vessel-actions">
+          <button id="btn-stir" disabled><span class="ae">🥄</span><span class="al">攪拌</span><small class="av"></small></button>
+          <button id="btn-juice" disabled><span class="ae">🍎</span><span class="al">榨蘋果</span><small class="av"></small></button>
+          <button id="btn-shake" disabled><span class="ae">🫨</span><span class="al">搖茶</span><small class="av"></small></button>
+          <button id="btn-steam" disabled><span class="ae">♨️</span><span class="al">蒸汽加熱</span><small class="av"></small></button>
+          <button id="btn-blend" disabled><span class="ae">🌀</span><span class="al">打冰沙</span><small class="av"></small></button>
+          <button id="btn-brew3" disabled><span class="ae">☕</span><span class="al">萃茶鍵3</span><small class="av"></small></button>
+          <button id="btn-brew5" disabled><span class="ae">☕</span><span class="al">萃茶鍵5</span><small class="av"></small></button>
+          <div id="brew-panel">
+            <button class="brew-water" data-ml="150" title="加 150ml 熱水到萃茶機（會自動切到萃茶機）"><span class="ae">♨️</span><span class="al">熱水 150</span><small class="av">萃茶機</small></button>
+            <button class="brew-water" data-ml="350" title="加 350ml 熱水到萃茶機（會自動切到萃茶機）"><span class="ae">♨️</span><span class="al">熱水 350</span><small class="av">萃茶機</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="pour-row">
+        <span class="pour-note" id="pour-note">素材與冰量直接加進成品紙杯；放錯可倒入雪克杯</span>
+        <button id="pour-to-cup" class="primary" hidden disabled>⬇ 倒入紙杯</button>
+        <button id="pour-to-shaker" hidden disabled>→ 倒入雪克杯</button>
+      </div>
+    </div>
+
+    <div class="card" id="measure" title="拖曳量杯到液體素材、容器圖或紙杯">
+      <div class="card-h"><span>量杯</span><span class="sub" id="measure-src">拖到液體上</span></div>
+      <div class="m-body"><div class="liquid"></div><div id="measure-ml">0</div><span class="m-unit">ml</span></div>
+      <button id="m-fill">按住裝填</button>
+      <div class="row"><button id="m-m5">−5</button><button id="m-p5">+5</button></div>
+      <div class="row"><button id="m-m1">−1</button><button id="m-p1">+1</button></div>
+      <div class="row"><button id="m-empty">倒掉</button><button id="btn-pour">倒入</button></div>
+    </div>
+
+    <div class="card" id="ice-panel" title="杯內冰量（% 杯高）：正常 8～9 成、少冰 1/2、微冰 1/3">
+      <div class="card-h"><span>冰量</span><span class="sub lbl" id="ice-vessel">紙杯</span></div>
+      <div class="ice-cup"><div class="ice"></div><div id="ice-pct">0%</div></div>
+      <button id="ice-fill">按住加冰</button>
+      <div class="row"><button id="ice-m5">−5</button><button id="ice-p5">+5</button></div>
+      <div class="row"><button class="ice-preset" data-pct="33">微冰⅓</button><button class="ice-preset" data-pct="50">少冰½</button></div>
+      <div class="row"><button class="ice-preset" data-pct="80">8成</button><button class="ice-preset" data-pct="90">9成</button></div>
+      <button id="ice-clear">去冰</button>
+    </div>
+  </section>
+
+  <!-- F. 素材工作台 -->
+  <section id="bench">
+    <div class="tabs-row"><div class="tabs" id="tabs"></div><div id="bench-hint"></div></div>
+    <div id="panels"></div>
+  </section>
+
+  <!-- E. 右側面板 -->
+  <aside id="panel">
+    <div class="card order">
+      <div id="order-title"><span class="o-none">尚未接單</span></div>
+      <div id="order-hint">等待客人上門…</div>
+    </div>
+    <ul id="cup-list"></ul>
+    <div class="pbtns"><button id="btn-undo">↶ 撤銷</button><button id="btn-reset-cup">🗑 倒掉重做</button></div>
+    <div id="finish-panel">
+      <div class="cap">收尾</div>
+      <div class="seg">
+        <button class="fin" data-fin="topWater">💧 補水</button>
+        <button class="fin" data-fin="topTea">🍵 補茶</button>
+        <button class="fin" data-fin="none">✋ 不補</button>
+      </div>
+    </div>
+    <button id="btn-recipes-dock" title="配方表" aria-label="配方表">📖</button>
+    <button id="btn-serve" class="primary" disabled>送出 ▶</button>
+  </aside>
+
+  <!-- Modals -->
+  <div class="modal" id="modal-start" style="display:flex">
+    <div class="logo"><span class="logo-zh">樂法</span><span class="logo-rule"></span><span class="logo-en">Le Phare</span></div>
+    <div class="box">
+      <h2>飲料店經營遊戲</h2>
+      <div class="tag">樂法斗六店 配方表 ・ 108 款飲料 ・ 16 系列</div>
+      <div class="days" id="day-picker"></div>
+      <div class="how3">
+        <div class="step"><div class="ic">🙋</div><b>1. 接單</b>點櫃台客人接單。<br>泡泡寫著杯型、冰量、甜度。</div>
+        <div class="step"><div class="ic">🧪</div><b>2. 製作</b>素材放進正確容器，量杯拖到液體上裝填。<br>做完動作按「倒入紙杯」。</div>
+        <div class="step"><div class="ic">🛎️</div><b>3. 送出</b>選收尾後按「送出」。<br>素材 60%・製程 25%・收尾 15%，超時打折。</div>
+      </div>
+      <div class="how-line"><b>容器：</b>杯底料→紙杯；要搖、要加熱→雪克杯；打冰沙→果汁機；茶包＋熱水→萃茶機。放錯容器每項扣 10 分；看不懂配方請按「配方表」（查看時遊戲會暫停）。</div>
+      <div class="actions" style="justify-content:center"><button id="btn-start" class="primary">開店！</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-recipes">
+    <div class="box">
+      <div class="rhead">
+        <h2 style="margin:0">📖 配方表</h2>
+        <span class="timer-note">⏸ 已暫停</span>
+        <div class="rmode"><button id="rmode-list" class="on">配方列表</button><button id="rmode-memo">速記法</button></div>
+        <input id="recipe-search" placeholder="搜尋飲料名稱…">
+        <button id="btn-recipes-close">關閉</button>
+      </div>
+      <div class="rtabs" id="rtabs"></div>
+      <ul id="recipe-list"></ul>
+      <div id="memo-panel" hidden></div>
+    </div>
+  </div>
+
+  <!-- 速記法內容：規則已用程式對過全部 108 款；每個家族卡的 data-fam 供「目前訂單」高亮 -->
+  <template id="memo-tpl">
+    <div class="memo-now" id="memo-now" hidden></div>
+    <h3 class="m-h">1 · 骨架：4 個容器、3 種收尾、2 個糖基準</h3>
+    <table class="m-t">
+      <tr><th>容器</th><th>放什麼</th><th>做什麼</th></tr>
+      <tr><td><b>紙杯（杯底）</b></td><td>果汁、果泥、多多、冷牛奶、凍、珍珠、椰果、仙草、梅粉、冰淇淋、優酪乳、榨蘋果</td><td>直接調的在這裡攪拌</td></tr>
+      <tr><td><b>雪克杯</b></td><td>茶＋糖＋冰（＋奶精、蜂蜜）</td><td>搖茶／蒸汽機加熱</td></tr>
+      <tr><td><b>果汁機</b></td><td>果丁＋果醬＋糖＋水</td><td>打到無塊</td></tr>
+      <tr><td><b>萃茶機</b></td><td>茶包＋熱水</td><td>鍵 3 純茶／鍵 5 歐蕾</td></tr>
+    </table>
+    <div class="m-motto">料在紙杯，茶在雪克，丁在果汁機，包在萃茶機。</div>
+    <div class="m-rules">
+      <div class="m-rule"><b>收尾只有三種</b><span class="m-chip">補茶</span>只有歐蕾（冷縮茶＋牛奶九款）<br><span class="m-chip warn">不補</span>果汁機加了冰塊的四款：冰淇淋芒果、芒果楊枝、草莓奶昔、藍莓奶昔<br><span class="m-chip">補水</span>其他全部</div>
+      <div class="m-rule"><b>糖看誰是主角</b>茶當主角 → 大杯冰 <span class="m-chip num">60</span> 中杯熱 <span class="m-chip num">50</span><br>水果當主角 → <span class="m-chip num">40</span>（老饕蘋果中杯 30）<div class="m-ex">例外三家族：歐蕾 L50／M40；有蜂蜜就 15；奶昔固定 30。</div></div>
+    </div>
+
+    <h3 class="m-h">2 · 命名解碼</h3>
+    <table class="m-t">
+      <tr><th>名字裡有</th><th>就是</th><th>名字裡有</th><th>就是</th></tr>
+      <tr><td>鮮紅／紅茶</td><td>紅茶</td><td>舞動／舞凍</td><td>綠茶凍 2 勺</td></tr>
+      <tr><td>鮮綠／綠</td><td>綠茶</td><td>酪酪</td><td>優酪乳 100 ＋ 綠茶凍 2 勺</td></tr>
+      <tr><td>青／四季青</td><td>青茶（四季青）</td><td>鮮奶（含椰果）</td><td>牛奶 150 ＋ 椰果 1 勺</td></tr>
+      <tr><td>優利卡</td><td>檸檬汁</td><td>多多</td><td>多多 1 罐</td></tr>
+      <tr><td>那堤</td><td>牛奶，沒有茶</td><td>波／椰</td><td>珍珠／椰果</td></tr>
+      <tr><td>歐蕾</td><td>牛奶＋茶（冷縮茶或茶包）</td><td>梅</td><td>梅子粉</td></tr>
+      <tr><td>橙柚</td><td>柳橙 100 ＋ 葡萄柚 3 勺</td><td>奶昔</td><td>果汁機＋牛奶＋冰淇淋＋冰塊，不補水</td></tr>
+    </table>
+
+    <h3 class="m-h">3 · 鐵律（108 款無例外）</h3>
+    <div class="m-rules">
+      <div class="m-rule"><b>奶精只有奶茶和珍奶有</b>奶茶大杯 <span class="m-chip num">5 勺</span>，其餘（奶茶中熱、珍奶大中）都 <span class="m-chip num">4 勺</span><div class="m-ex">口訣：奶茶大杯五，其餘都是四。</div></div>
+      <div class="m-rule"><b>珍奶珍珠 2 勺，放紙杯</b>珍奶的茶比奶茶少 50，因為珍珠佔了位子。</div>
+      <div class="m-rule"><b>所有蘋果都要榨蘋果</b>蘋果系列 1 顆；老饕蘋果大杯 3、中杯 2、熱 2。</div>
+      <div class="m-rule"><b>冷飲：雪克杯裡有茶就搖茶</b><div class="m-ex">老饕蘋果不搖（茶直接放紙杯）；果汁機類不搖。</div></div>
+      <div class="m-rule"><b>熱飲都用蒸汽機</b><div class="m-ex">只有兩種本來就熱的不用：台灣茶純茶（茶包泡熱水）、仙草蜂蜜（蜂蜜沖熱水）。</div></div>
+      <div class="m-rule"><b>奶茶／珍奶連冰的都先蒸汽加熱</b>先溶奶精，再加糖、冰搖。</div>
+      <div class="m-rule"><b>中杯熱 ＝ 大杯冰的糖減 10</b>60→50、50→40、40→30<div class="m-ex">蜂蜜類不適用（蔗糖固定 15）。</div></div>
+      <div class="m-rule"><b>固定量</b>蜜桃汁 80、冰淇淋 100 g、優酪乳 100、凍類 2 勺、椰果 1 勺、仙草大杯 3 中杯 2。</div>
+    </div>
+
+    <h3 class="m-h">4 · 茶量：三個數字</h3>
+    <table class="m-t">
+      <tr><th>情境</th><th>茶量</th></tr>
+      <tr><td>純茶（蜂蜜四季青也算）</td><td class="n">200</td></tr>
+      <tr><td>奶茶</td><td class="n">L 250／M 200</td></tr>
+      <tr><td>珍奶</td><td class="n">200</td></tr>
+      <tr><td>茶＋配料：蘋果系列、蜜桃四季青、芭樂檸檬綠、芭樂紅茶、橙柚青、柳橙鮮綠、多多綠、寒天波椰、梅子鐵觀音、仙草鐵觀音、芒果綠茶</td><td class="n"><b>150</b></td></tr>
+      <tr><td>例外</td><td class="n">西瓜四季青 200、蘋果紅茶舞凍 120</td></tr>
+      <tr><td>老饕蘋果</td><td class="n">L 100／M 60／熱 100</td></tr>
+      <tr><td>歐蕾冷縮茶（跟牛奶一樣多）</td><td class="n">L 200／M 150／熱 200</td></tr>
+    </table>
+
+    <h3 class="m-h">5 · 家族卡：同一個模板，只記差異</h3>
+    <div class="fam" data-fam="f1"><h4>純茶家族 <small>8 款 ＋ 蜂蜜四季青 2 款</small></h4>
+      <div class="m-tpl"><b>雪克杯</b> 茶 200 ＋ 糖 → 冰搖／熱蒸汽攪拌 → 補水</div>
+      <ul><li>四種茶：阿薩姆熟成紅茶、茉莉綠茶、林華泰四季青、林華泰鐵觀音。糖 L 60／M 熱 50。</li><li>蜂蜜四季青 ＝ 純茶四季青 200 ＋ 蜂蜜（L 50／M 熱 25）＋ 蔗糖 15，先攪拌溶蜂蜜再搖。</li></ul></div>
+    <div class="fam" data-fam="f2"><h4>奶茶／珍奶家族 <small>12 款：紅茶、四季青、鐵觀音 × 4</small></h4>
+      <div class="m-tpl"><b>雪克杯</b> 茶 → 蒸汽加熱 → 奶精攪拌 → 糖（＋冰搖）→ 補水</div>
+      <ul><li>奶茶：L 茶 250 ＋ 奶精 5 ＋ 糖 60；M 熱 茶 200 ＋ 奶精 4 ＋ 糖 50。</li><li>珍奶：紙杯先放珍珠 2 勺；茶 200 ＋ 奶精 4；糖 L 60／M 熱 50。</li><li>三種茶完全同模板，只換茶。</li></ul></div>
+    <div class="fam" data-fam="f3"><h4>歐蕾 A：冷縮茶歐蕾 <small>9 款：紅茶、四季青、鐵觀音 × 3</small></h4>
+      <div class="m-tpl"><b>紙杯</b> 冷縮茶 ＝ 牛奶 ＋ 糖 ＋ 冰 → 攪拌 → <b>補茶</b>（唯一補茶的家族）</div>
+      <ul><li>L 200＋200 糖 50；M 150＋150 糖 40。</li><li>M 熱：雪克杯 冷縮茶 200 ＋ 牛奶 150 ＋ 糖 40 → 攪拌 → 蒸汽 → 倒紙杯 → 補茶。鐵觀音熱的牛奶是 200（唯一例外）。</li></ul></div>
+    <div class="fam" data-fam="f4"><h4>歐蕾 B：台灣茶歐蕾 <small>8 款：琥珀高山青、大葉烏龍、東方美人、紅韻紅茶 × 2</small></h4>
+      <div class="m-tpl"><b>萃茶機</b> 茶包 1 ＋ 熱水 150 → 鍵 5；牛奶 150；糖 40；補水</div>
+      <ul><li>冰：紙杯先放牛奶 150；茶萃好連茶包倒進雪克杯，加糖 40 加冰搖，倒紙杯。</li><li>熱：蒸汽機把牛奶 150 打熱倒紙杯；茶連茶包倒進紙杯，加糖 40。</li><li>記法：台灣茶歐蕾 ＝「150／150／鍵 5／糖 40」。</li></ul></div>
+    <div class="fam" data-fam="f5"><h4>台灣茶純茶 <small>8 款</small></h4>
+      <div class="m-tpl"><b>萃茶機</b> 茶包 1 ＋ 熱水 350 → 鍵 3</div>
+      <ul><li>冰：雪克杯放冰，倒入茶＋糖 60，搖，補水。</li><li>熱：直接倒紙杯，加糖 50 攪拌，補水，不用蒸汽機。</li><li>記法：純茶「350／鍵 3」，歐蕾「150／鍵 5」。</li></ul></div>
+    <div class="fam" data-fam="f6"><h4>老饕蘋果家族 <small>17 款</small></h4>
+      <div class="m-tpl"><b>全部在紙杯</b>：底料 → 糖 → 冰 → 榨蘋果 → 補水。不搖茶。</div>
+      <ul><li>蘋果顆數：L 3、M 2、熱 2。糖：L 40、M 30、熱 30；那堤（牛奶）特別少：15。</li></ul>
+      <table class="m-t"><tr><th>名字</th><th>底料</th><th>L</th><th>M</th></tr>
+        <tr><td>鮮紅</td><td>紅茶</td><td class="n">100</td><td class="n">60</td></tr><tr><td>鮮綠</td><td>綠茶</td><td class="n">100</td><td class="n">60</td></tr>
+        <tr><td>優利卡</td><td>檸檬汁</td><td class="n">30</td><td class="n">15</td></tr><tr><td>柳橙</td><td>柳橙汁</td><td class="n">60</td><td class="n">40</td></tr>
+        <tr><td>葡萄</td><td>葡萄汁</td><td class="n">30</td><td class="n">20</td></tr><tr><td>那堤</td><td>牛奶</td><td class="n">150</td><td class="n">120</td></tr></table>
+      <ul><li>只有大杯的兩款：舞動 ＝ 綠茶凍 2 勺 ＋ 綠茶 80 ＋ 蘋果 2 顆；多多 ＝ 多多 1 罐 ＋ 蘋果 2 顆（糖都 40）。</li><li>熱飲三款（鮮紅、鮮綠、優利卡）：改在雪克杯做，茶用 100、檸檬 15，糖 30，蒸汽機，倒回紙杯。</li></ul></div>
+    <div class="fam" data-fam="f7"><h4>蘋果系列 <small>4 款，都只有大杯</small></h4>
+      <div class="m-tpl"><b>紙杯</b> 放果汁或凍；<b>雪克杯</b> 茶 150 ＋ 糖 40 ＋ 冰搖倒入；榨蘋果 1 顆；補水</div>
+      <ul><li>蘋果芭樂綠：芭樂泥 100 ＋ 綠茶（這裡的芭樂泥不配芭樂醬）。</li><li>蘋果柳橙青：柳橙 100 ＋ 青茶。</li><li>蘋果紅茶舞凍：綠茶凍 2 勺 ＋ 紅茶 120。</li><li>蘋果蜂蜜綠：沒有蔗糖，綠茶 150 ＋ 蜂蜜（正常 60、七分 40），先攪拌溶蜂蜜再搖。</li></ul></div>
+    <div class="fam" data-fam="f8"><h4>果汁機家族 <small>芒果、草莓、藍莓、芭樂芒果、芒果綠茶，共 11 款</small></h4>
+      <div class="m-tpl"><b>紙杯</b> 放底料；<b>果汁機</b> 果丁 75 ＋ 果醬 ＋ 糖 40 ＋ 水 → 打到無塊 → 倒紙杯 → 補水</div>
+      <ul><li>果醬 25 是常態；<b>35 只有三款</b>：芒果鮮奶、草莓鮮奶、芒果楊枝（牛奶跟楊枝要重口味）。</li><li>底料對照：多多 → 多多 1 罐；鮮奶 → 椰果 1 勺＋牛奶 150；酪酪 → 綠茶凍 2 勺＋優酪乳 100（草莓柳橙酪酪再加柳橙 40，水 75）。</li><li>楊枝 2.0：底料 綠茶凍 2＋葡萄柚 2 勺＋優酪乳 100；果汁機加冰塊 200、水 100 → <b>不補水</b>。</li><li>冰淇淋芒果：紙杯放冰淇淋 100；果汁機加冰塊 250、水 150 → <b>不補水</b>。</li><li>芒果綠茶：果汁機裡直接放綠茶 150 代替水，沒有底料。</li><li>芭樂芒果：紙杯 芭樂泥 100＋芭樂醬 50；果汁機 芒果丁 50＋醬 25（果丁減半）。</li><li>奶昔兩款：全部丟果汁機（果料、草莓醬、糖 30 固定、牛奶 150、冰淇淋 100、冰塊 100、水 150）→ 不補水。草莓奶昔 草莓丁 50＋醬 35；藍莓奶昔 藍莓 60＋草莓醬 20。</li></ul></div>
+    <div class="fam" data-fam="f9"><h4>芭樂家族 <small>6 款</small></h4>
+      <div class="m-tpl"><b>紙杯</b> 芭樂泥 100 ＋ 芭樂醬 50 ＋ 糖 40</div>
+      <ul><li>直接調（紙杯加冰補水）：芭樂柳橙（＋柳橙 100）、芭樂梅（＋梅粉 3 g）、芭樂多多（唯一縮量：泥 75＋醬 25＋多多 1 罐）。</li><li>搖茶版（雪克杯 茶 150＋糖 40）：芭樂檸檬綠（紙杯再加檸檬 20，綠茶）、芭樂紅茶（紅茶）。</li><li>芭樂芒果 → 走果汁機家族。</li></ul></div>
+    <div class="fam" data-fam="f10"><h4>蜜桃家族 <small>4 款，蜜桃汁永遠 80</small></h4>
+      <ul><li>蜜桃四季青：紙杯蜜桃 80；雪克杯 青茶 150＋糖 40 搖。</li><li>冰淇淋蜜桃：同上，紙杯多放冰淇淋 100。</li><li>蜜桃鮮奶（含椰果）：紙杯 椰果 1＋牛奶 150＋蜜桃 80＋糖 40，不搖。</li><li>蜜桃青檸酪酪：紙杯 綠茶凍 2＋優酪乳 100＋蜜桃 80＋檸檬 5＋糖 40，不搖。</li></ul></div>
+    <div class="fam" data-fam="f11"><h4>柳橙／西瓜／多多 <small>茶當主角，糖 60</small></h4>
+      <ul><li>橙柚青 ＝ 柳橙 100 ＋ 葡萄柚 3 勺（紙杯）＋ 青茶 150（雪克杯）。熱的糖 50 用蒸汽機。梅好橙柚青 ＝ 橙柚青 ＋ 梅粉 3 g。</li><li>柳橙鮮綠 ＝ 柳橙 150 ＋ 綠茶 150。</li><li>西瓜三款克數一樣（三分 40／五分 60／七分 80），可點範圍不同：西瓜牛奶 三分～五分、建議三分；西瓜四季青、西瓜多多 五分～七分、建議五分。西瓜四季青：西瓜 160 ＋ 青茶 200（搖）；西瓜多多：多多 1 罐 ＋ 西瓜 140（攪拌）；西瓜牛奶：牛奶 150 ＋ 西瓜 200（攪拌）。</li><li>多多綠茶：多多 1 罐 ＋ 綠茶 150 搖；檸檬多多：多多 1 罐 ＋ 檸檬 25，紙杯直調。</li><li>葡萄多多（新品）：葡萄汁 50 ＋ 多多 1 罐，紙杯攪拌（葡萄醬＝葡萄汁，同一瓶；老饕蘋果葡萄用 L 30／M 20）；甜度只有 無糖 0／全糖 30，建議無糖（無糖就是不加糖）。</li></ul></div>
+    <div class="fam" data-fam="f12"><h4>配料茶：寒天波椰、梅子鐵觀音、仙草 <small>茶 150，糖 60／50</small></h4>
+      <ul><li>四季青寒天波椰：紙杯 珍珠 1、椰果 1、寒天 1；雪克杯 青茶 150。</li><li>梅子鐵觀音：紙杯 梅粉 <b>5 g</b>（芭樂梅、梅好橙柚青是 3 g）；雪克杯 鐵觀音 150。</li><li>仙草鐵觀音：紙杯 仙草 3 勺（熱 2 勺）；雪克杯 鐵觀音 150。</li><li>仙草鮮奶：紙杯 仙草 3＋牛奶 200＋糖 50（比一般少 10）；熱：仙草 2，牛奶 200 進雪克杯，糖 40。</li><li>仙草蜂蜜：紙杯 仙草 3（熱 2）；雪克杯 蜂蜜 40（熱 25）＋蔗糖 15＋適量熱水攪拌，冰的再加冰搖；熱的不用蒸汽機。</li></ul></div>
+
+    <h3 class="m-h">6 · 數字速查</h3>
+    <table class="m-t">
+      <tr><th>東西</th><th>數字</th><th>例外</th></tr>
+      <tr><td>蔗糖 茶系</td><td class="n">L 60／M 熱 50</td><td></td></tr>
+      <tr><td>蔗糖 果系</td><td class="n">40</td><td>老饕中杯 30、那堤 15、奶昔 30</td></tr>
+      <tr><td>蔗糖 歐蕾</td><td class="n">L 50／M 40</td><td>台灣茶歐蕾一律 40</td></tr>
+      <tr><td>蔗糖 有蜂蜜</td><td class="n">15</td><td>蘋果蜂蜜綠無蔗糖</td></tr>
+      <tr><td>蔗糖 西瓜</td><td class="n">三分 40／五分 60／七分 80</td><td>西瓜牛奶 三分～五分；西瓜四季青、多多 五分～七分</td></tr>
+      <tr><td>蔗糖 葡萄多多</td><td class="n">無糖 0／全糖 30</td><td>建議無糖</td></tr>
+      <tr><td>蜂蜜</td><td class="n">中熱 25</td><td>大杯：蜂蜜四季青 50、仙草蜂蜜 40、蘋果蜂蜜綠 60（七分 40）</td></tr>
+      <tr><td>奶精</td><td class="n">4 勺</td><td>奶茶大杯 5</td></tr>
+      <tr><td>熱水（萃茶機）</td><td class="n">純 350 鍵 3／歐蕾 150 鍵 5</td><td></td></tr>
+      <tr><td>牛奶</td><td class="n">150</td><td>歐蕾 L 200、仙草鮮奶 200、鐵觀音歐蕾熱 200、那堤 L150 M120</td></tr>
+      <tr><td>柳橙汁</td><td class="n">100</td><td>柳橙鮮綠 150、草莓柳橙酪酪 40、老饕 L60 M40</td></tr>
+      <tr><td>檸檬汁</td><td class="n">優利卡 L30 M15</td><td>芭樂檸檬綠 20、檸檬多多 25、蜜桃青檸 5</td></tr>
+      <tr><td>芭樂泥＋醬</td><td class="n">100＋50</td><td>芭樂多多 75＋25、蘋果芭樂綠只有泥 100</td></tr>
+      <tr><td>果丁＋果醬</td><td class="n">75＋25</td><td>醬 35：兩款鮮奶、楊枝；奶昔 50＋35；芭樂芒果 50＋25；藍莓 60＋草莓醬 20</td></tr>
+      <tr><td>果汁機 水</td><td class="n">適量</td><td>冰淇淋芒果 150、楊枝 100、草莓柳橙酪酪 75、奶昔 150</td></tr>
+      <tr><td>凍、珍珠</td><td class="n">2 勺</td><td>寒天波椰各 1</td></tr>
+      <tr><td>葡萄柚</td><td class="n">橙柚青 3 勺</td><td>楊枝 2 勺</td></tr>
+      <tr><td>梅粉</td><td class="n">3 g</td><td>梅子鐵觀音 5 g</td></tr>
+    </table>
+  </template>
+
+  <div class="modal" id="modal-result"><div class="box" id="result-box"></div></div>
+  <div class="modal" id="modal-day-end"><div class="box" id="dayend-box"></div></div>
+  <div class="modal" id="modal-qty"><div class="box" id="qty-box"></div></div>
+
+  <div id="pause-overlay">⏸ 已暫停<small>點擊或按「繼續」回到遊戲</small></div>
+  <div id="toast"></div>
+  <div id="ghost">🥛</div>
+</div>
+</div>
+<script src="recipes.js"></script>
+<script src="audio.js"></script>
+<script>
+(function () {
+  'use strict';
+  const GameAudio = window.GameAudio || { play() {}, playOnce() {}, startLoop() {}, stopLoop() {}, stopAllLoops() {}, music() {}, setPaused() {}, setTense() {} };
+  const D = window.RECIPE_DATA;
+  if (!D) { console.error('recipes.js 未載入'); return; }
+  const ING = D.ING, ACTIONS = D.ACTIONS, FINISH = D.FINISH, RECIPES = D.RECIPES, CATEGORIES = D.CATEGORIES;
+  const ICE_LEVELS = D.ICE_LEVELS || { normal: { name: '正常冰', min: 80, max: 90 }, less: { name: '少冰', min: 50, max: 50 }, light: { name: '微冰', min: 33, max: 33 } };
+  // v3 容器：c 紙杯 / s 雪克杯 / b 果汁機 / t 萃茶機（recipes.js v3 提供；缺少時退回預設）
+  const VESSELS = D.VESSELS || {
+    c: { name: '紙杯', emoji: '🥤', actions: ['stir', 'juice'] }, s: { name: '雪克杯', emoji: '🫗', actions: ['shake', 'steam', 'stir', 'juice'] },
+    b: { name: '果汁機', emoji: '🌀', actions: ['blend'] }, t: { name: '萃茶機', emoji: '☕', actions: ['brew3', 'brew5'] },
+  };
+  const VESSEL_KEYS = ['c', 's', 'b', 't'];
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+
+  /*PURE-START*/
+  // ===== 純函式評分模組（不依賴 DOM；PLAN-v2 §4 ＋ PLAN-v3 §3 容器路徑）=====
+  const LIQUID_GROUPS = new Set(['tea', 'water', 'fridge', 'juice']);
+  const WEIGHT2 = new Set(['sugar', 'honey', 'mango_jam', 'straw_jam', 'creamer', 'guava_jam', 'ice']);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const vName = v => (VESSELS[v] ? VESSELS[v].name : String(v));
+  const vOf = i => (i && VESSELS[i.v] ? i.v : 'c');            // item 無 v 視為紙杯
+  const vsOf = i => (Array.isArray(i && i.vs) && i.vs.length ? i.vs : [vOf(i)]);  // 倒入合併後可能有多個來源容器
+
+  // kind：liquid（量杯）/ weigh（數量選擇器）/ scoop（勺）/ unit（顆件）/ ice（杯內冰量，% 杯高）
+  function kindOf(ing) {
+    const g = ING[ing] && ING[ing].group;
+    if (LIQUID_GROUPS.has(g)) return 'liquid';
+    if (g === 'dial') return 'weigh';
+    if (g === 'spoon') return 'scoop';
+    if (g === 'ice' || ing === 'ice') return 'ice';
+    return 'unit';
+  }
+  function weightOf(ing) { if (WEIGHT2.has(ing)) return 2; if (kindOf(ing) === 'liquid') return 3; return 1; }
+  const nameOf = ing => ing === 'ice' ? '冰塊' : (ING[ing] ? ING[ing].name : ing);
+
+  function fmtQty(ing, qty) {
+    const def = ING[ing] || { unit: '' };
+    if (ing === 'ice') {
+      if (typeof qty === 'string') { const L = ICE_LEVELS[qty]; return L ? L.name + '(' + (L.min === L.max ? L.min : L.min + '~' + L.max) + '%)' : qty; }
+      return qty + '%';
+    }
+    if (qty === -1) return '適量';
+    if (qty === 0) return '不加';
+    const kind = kindOf(ing);
+    if (kind === 'liquid') return qty + 'ml';
+    if (kind === 'weigh') return qty + (def.unit || 'g');
+    if (kind === 'scoop') return qty + '勺';
+    return qty + (def.unit || '');
+  }
+  const labelOf = (ing, qty) => nameOf(ing) + ' ' + fmtQty(ing, qty);
+
+  function numericScore(q, have, tol) {
+    if (tol == null) tol = Math.max(0.1 * q, 10);
+    const d = Math.abs(have - q);
+    if (d <= tol) return 1;
+    return Math.max(0, 1 - (d - tol) / (2 * tol));
+  }
+  // 杯內冰：q 為 level 字串（normal/less/light）；d = 距離滿分區間的偏差
+  function iceScore(level, have) {
+    const L = ICE_LEVELS[level];
+    if (!L) return numericScore(Number(level) || 0, have);
+    const d = have < L.min ? L.min - have : have > L.max ? have - L.max : 0;
+    return d <= 5 ? 1 : Math.max(0, 1 - (d - 5) / 10);
+  }
+  function itemScore(ing, q, have) {
+    if (q === 0) return (have == null || have === 0) ? 1 : 0;   // 不加（例如無糖）：沒放才對
+    if (have == null) return 0;
+    if (ing === 'ice') return typeof q === 'string' ? iceScore(q, have) : numericScore(q, have);
+    if (q === -1) return have > 0 ? 1 : 0;            // 適量
+    const kind = kindOf(ing);
+    if (kind === 'liquid' || kind === 'weigh') return numericScore(q, have, ING[ing] && ING[ing].tol != null ? ING[ing].tol : null);
+    if (kind === 'scoop') { const d = Math.abs(have - q); return d === 0 ? 1 : d === 1 ? 0.5 : 0; }
+    return have === q ? 1 : 0;
+  }
+  function mergeItems(items) {
+    const m = new Map();
+    (items || []).forEach(i => { if (!i || !i.ing) return; m.set(i.ing, (m.get(i.ing) || 0) + Number(i.qty || 0)); });
+    return m;
+  }
+  function finishScore(need, got) {
+    const n = need || 'none', g = got || 'none';
+    return n === g ? 100 : 0;
+  }
+  // 依客人的冰量／甜度把配方解析成實際目標（純函式，回傳複本）
+  // v3：每筆 item 帶 v（應放入的容器）；ice 項的 v = recipe.iceV
+  function resolveOrder(recipe, opts) {
+    opts = opts || {};
+    const items = (recipe.items || []).map(i => ({ ing: i.ing, qty: i.qty, v: vOf(i) }));
+    const sv = recipe.sv;
+    if (sv && sv.opts && opts.sweetKey != null && Object.prototype.hasOwnProperty.call(sv.opts, opts.sweetKey)) {
+      const it = items.find(i => i.ing === sv.ing);
+      if (it) it.qty = sv.opts[opts.sweetKey]; else items.push({ ing: sv.ing, qty: sv.opts[opts.sweetKey], v: 'c' });
+    }
+    const iceLevel = recipe.ice === 'cup' && opts.iceLevel && ICE_LEVELS[opts.iceLevel] ? opts.iceLevel : null;
+    if (iceLevel) items.push({ ing: 'ice', qty: iceLevel, v: VESSELS[recipe.iceV] ? recipe.iceV : 'c' });
+    return Object.assign({}, recipe, { items, actions: (recipe.actions || []).slice(), iceLevel, sweetKey: opts.sweetKey != null ? opts.sweetKey : (recipe.sweet || '正常') });
+  }
+  // 紙杯內每種素材實際來自哪些容器（ing → Set(v)）
+  function routeMap(items) {
+    const m = new Map();
+    (items || []).forEach(i => { if (!i || !i.ing) return; const set = m.get(i.ing) || new Set(); vsOf(i).forEach(v => set.add(v)); m.set(i.ing, set); });
+    return m;
+  }
+  function score(recipe, cup) {
+    const details = [];
+    let pen = 0;
+    if (cup.size !== recipe.size) { pen += 15; details.push('杯型 ' + cup.size + ' → 應 ' + recipe.size); }
+    if (cup.temp !== recipe.temp) { pen += 15; details.push('溫度 ' + cup.temp + ' → 應 ' + recipe.temp); }
+    const have = mergeItems(cup.items);
+    const routes = routeMap(cup.items);
+    const targets = new Set();
+    let sw = 0, sp = 0, route = 0;
+    for (const t of recipe.items) {
+      targets.add(t.ing);
+      const w = weightOf(t.ing), h = have.has(t.ing) ? have.get(t.ing) : null;
+      const p = itemScore(t.ing, t.qty, h);
+      sw += w; sp += p * w;
+      if (p < 1) details.push(h == null ? '缺少 ' + labelOf(t.ing, t.qty) : labelOf(t.ing, h) + ' → 應 ' + fmtQty(t.ing, t.qty));
+      // v3 容器路徑：素材有放、但沒有經過該放的容器 → 每項 −10（上限 −30，與多餘分開）
+      if (h != null) {
+        const tv = vOf(t), got = routes.get(t.ing);
+        if (got && got.size && !got.has(tv)) {
+          route++;
+          details.push(nameOf(t.ing) + ' 應放' + vName(tv) + (tv === 'c' ? '(杯底)' : '') + '，你放在' + [...got].map(vName).join('／'));
+        }
+      }
+    }
+    pen += Math.min(30, route * 10);
+    let extra = 0;
+    for (const ing of have.keys()) if (!targets.has(ing)) { extra++; details.push('多餘 ' + labelOf(ing, have.get(ing))); }
+    pen += Math.min(30, extra * 10);
+    const base = sw > 0 ? sp / sw * 100 : 100;
+    const S_ing = clamp(base - pen, 0, 100);
+
+    const need = [...new Set(recipe.actions || [])], done = [...new Set(cup.actions || [])];
+    let S_act;
+    if (!need.length) {
+      S_act = clamp(100 - 25 * done.length, 0, 100);
+      done.forEach(a => details.push('多餘製程 ' + (ACTIONS[a] || a)));
+    } else {
+      const hit = need.filter(a => done.includes(a)).length;
+      const ex = done.filter(a => !need.includes(a));
+      S_act = clamp(hit / need.length * 100 - ex.length * 20, 0, 100);
+      need.filter(a => !done.includes(a)).forEach(a => details.push('缺少製程 ' + (ACTIONS[a] || a)));
+      ex.forEach(a => details.push('多餘製程 ' + (ACTIONS[a] || a)));
+    }
+    const S_fin = finishScore(recipe.finish, cup.finish);
+    if (S_fin < 100) details.push('收尾 ' + (FINISH[cup.finish || 'none'] || cup.finish) + ' → 應 ' + (FINISH[recipe.finish] || recipe.finish));
+    const Q = 0.6 * S_ing + 0.25 * S_act + 0.15 * S_fin;
+    return { S_ing, S_act, S_fin, Q, details };
+  }
+  function timeFactor(elapsed, max) {
+    if (!(max > 0)) return 1;
+    if (elapsed <= max) return 1;
+    return Math.max(0.2, 1 - 0.8 * (elapsed - max) / max);
+  }
+  function patienceFor(r) {
+    const complexity = r.items.length + r.actions.length * 2 + ((r.finish || 'none') === 'none' ? 0 : 1);
+    return clamp(60 + complexity * 10, 60, 150);
+  }
+  function starsFor(sat) { return sat >= 90 ? 5 : sat >= 75 ? 4 : sat >= 60 ? 3 : sat >= 40 ? 2 : 1; }
+  const STAR_MULT = { 5: 1.5, 4: 1.2, 3: 1.0, 2: 0.6, 1: 0.2 };
+  function moneyFor(recipe, sat) {
+    if (!(sat > 0)) return 0;
+    const stars = starsFor(sat);
+    const price = (recipe.size === 'L' ? 65 : 50) + (recipe.items.length >= 5 ? 5 : 0) + 5 * recipe.actions.length;
+    return Math.round(price * STAR_MULT[stars] + (stars === 5 ? 10 : 0));
+  }
+  // v5：每一天都從全部 108 款抽（16 系列全開），Day 只差客人數／間隔／櫃台上限
+  const CATS_ALL = CATEGORIES.slice();                                                          // 108 款
+  const CATS1 = CATS_ALL, CATS2 = CATS_ALL, CATS3 = CATS_ALL, CATS4 = CATS_ALL;
+  const DAY_CONFIG = {
+    1: { customers: 8, interval: 20, maxOnCounter: 2, cats: CATS_ALL },
+    2: { customers: 9, interval: 16, maxOnCounter: 3, cats: CATS_ALL },
+    3: { customers: 10, interval: 13, maxOnCounter: 4, cats: CATS_ALL },
+    4: { customers: 12, interval: 10, maxOnCounter: 5, cats: CATS_ALL },
+    5: { customers: 12, interval: 8, maxOnCounter: 5, cats: CATS_ALL },
+  };
+  function dayConf(d) { return DAY_CONFIG[clamp(Math.floor(Number(d) || 1), 1, 5)]; }
+  function getPool(day) { void dayConf(day); return RECIPES.slice(); }
+  /*PURE-END*/
+
+  // ===== UI 補充表 =====
+  const UI = {
+    green: { e: '🌿' }, black: { e: '🫖' }, qing: { e: '🍃' }, tgy: { e: '🍂' },
+    tgy_cold: { e: '❄️' }, qing_cold: { e: '❄️' }, black_cold: { e: '❄️' },
+    ro: { e: '💧' }, hot: { e: '♨️' }, milk: { e: '🥛' }, yogurt: { e: '🍶' },
+    peach: { e: '🍑' }, lemon: { e: '🍋' }, orange: { e: '🍊' }, grape: { e: '🍇' }, watermelon: { e: '🍉' }, guava: { e: '🍈' }, guava_jam: { e: '🫙' },
+    sugar: { e: '🧂' }, honey: { e: '🍯' }, mango_jam: { e: '🥭' }, straw_jam: { e: '🍓' }, plum: { e: '⚖️' }, icecream: { e: '🍦' },
+    mango: { e: '🥭' }, straw: { e: '🍓' }, blueberry: { e: '🫐' }, ice_g: { e: '🧊' }, ice: { e: '🧊' },
+    grapefruit: { e: '🟠' }, creamer: { e: '🥄' }, pearl: { e: '⚫' }, coconut: { e: '⚪' }, gjelly: { e: '🟩' }, grass: { e: '⬛' }, agar: { e: '🔷' },
+    apple: { e: '🍎' }, teabag: { e: '🍵' }, yakult: { e: '🍼' },
+  };
+  // 素材分頁（PLAN-v2 §2.1）：每頁 ≤ 12 格；杯內冰 ice 不做成格子（改用 #ice-panel）
+  const TABS = [
+    { id: 'tea', label: '茶桶', groups: ['tea'] },
+    { id: 'liquid', label: '水/奶/果汁', groups: ['water', 'fridge', 'juice'] },
+    { id: 'dial', label: '糖/醬/果料', groups: ['dial'] },
+    { id: 'spoon', label: '勺料', groups: ['spoon'] },
+    { id: 'count', label: '顆/件', groups: ['count'] },
+  ];
+  // 前置條件以「容器物件 {items}」判斷（v3：只看 active 容器）
+  const hasBrew = c => c.items.some(i => i.ing === 'teabag') && c.items.some(i => i.ing === 'hot');
+  const ACTION_DEF = {
+    shake: { ms: 1500, emoji: '🫨', pre: c => c.items.length > 0, why: '容器內需有內容' },
+    steam: { ms: 2000, emoji: '♨️', pre: c => c.items.some(i => kindOf(i.ing) === 'liquid'), why: '容器內需有液體' },
+    blend: { ms: 2500, emoji: '🌀', pre: c => c.items.length > 0, why: '容器內需有內容' },
+    stir: { ms: 800, emoji: '🥄', pre: c => c.items.length > 0, why: '容器內需有內容' },
+    juice: { ms: 1800, emoji: '🍎', pre: c => c.items.some(i => i.ing === 'apple' && i.qty >= 1), why: '需要蘋果 ≥1 顆' },
+    brew3: { ms: 2000, emoji: '☕', pre: hasBrew, why: '需要茶包與熱水' },
+    brew5: { ms: 2000, emoji: '☕', pre: hasBrew, why: '需要茶包與熱水' },
+  };
+  const actionVessels = code => VESSEL_KEYS.filter(v => VESSELS[v].actions.includes(code));
+  const canDo = (code, v) => !!ACTION_DEF[code] && !!VESSELS[v] && VESSELS[v].actions.includes(code) && ACTION_DEF[code].pre(state.vessels[v]);
+  const BREW_KEYS = ['brew3', 'brew5']; // 互斥
+  const FACES = ['😀', '😊', '🙂', '😄', '😎', '🤓', '😺', '👧', '👦', '👩', '👨', '🧑', '👵', '👴', '🧔', '👱', '🥸', '🤠'];
+  const BODY_COLORS = ['#88AEDC', '#A9C4E6', '#C9DAF0', '#6B95C9', '#DCE8F5']; // 品牌藍系（BRAND.md）
+  const unitMax = ing => (ING[ing] && ING[ing].max) || 1;
+
+  // 泡泡／訂單標題文字：「名稱 尺寸[熱]・冰量・甜度」（熱飲不顯示冰量）
+  function bubbleText(o) {
+    if (!o || !o.recipe) return '';
+    const r = o.recipe;
+    const parts = [r.name + ' ' + r.size + (r.temp === '熱' ? '熱' : '')];
+    if (o.iceLevel && ICE_LEVELS[o.iceLevel]) parts.push(ICE_LEVELS[o.iceLevel].name);
+    parts.push(o.sweetKey || r.sweet || '正常');
+    return parts.join('・');
+  }
+
+  // v4 訂單 chips：尺寸冰熱／冰量／甜度（櫃台泡泡與右側訂單卡共用）
+  function orderChips(o) {
+    if (!o || !o.recipe) return '';
+    const r = o.recipe, chips = [];
+    chips.push('<span class="chip' + (r.temp === '熱' ? ' hot' : '') + '">' + esc(r.size + (r.temp === '熱' ? ' 熱' : ' 冰')) + '</span>');
+    if (o.iceLevel && ICE_LEVELS[o.iceLevel]) chips.push('<span class="chip ice">' + esc(ICE_LEVELS[o.iceLevel].name) + '</span>');
+    chips.push('<span class="chip sweet">' + esc(o.sweetKey || r.sweet || '正常') + '</span>');
+    return chips.join('');
+  }
+
+  // ===== 狀態 =====
+  const state = {
+    day: 1, started: false, paused: false, dayOver: false,
+    money: 0, served: 0, spawned: 0, starSum: 0, fiveStars: 0, slowest: 0,
+    orders: [], queue: [], currentId: null,
+    // v3 四容器；每筆 item = {ing, qty, v}（v = 所屬容器；倒入紙杯時保留來源、倒入其他容器時改記為目標容器）
+    vessels: { c: { items: [] }, s: { items: [] }, b: { items: [] }, t: { items: [] } },
+    active: 's',   // v5：預設容器為雪克杯
+    history: [],   // [{v, ing}] 撤銷用（加入順序）
+    cup: { size: 'M', temp: '冰', actions: [], finish: 'none' },
+    measure: { src: null, ml: 0 },
+    busy: null, tab: 'tea', forcedNext: null, deck: [],
+  };
+  // state.cup.items 永遠是 vessels.c.items 的同一個陣列（就算外部整個重新指定，也同步回紙杯）
+  Object.defineProperty(state.cup, 'items', {
+    enumerable: true, configurable: false,
+    get() { return state.vessels.c.items; },
+    set(a) { state.vessels.c.items = Array.isArray(a) ? a : []; },
+  });
+  const ves = v => state.vessels[VESSELS[v] ? v : 'c'];
+  const allEmpty = () => VESSEL_KEYS.every(v => state.vessels[v].items.length === 0);
+  function clearVessels() { VESSEL_KEYS.forEach(v => { state.vessels[v].items.length = 0; }); state.history.length = 0; }
+  let orderSeq = 0, spawnTimer = 0, action = null, toastTimer = null;
+  let progress = { maxDay: 1, bestMoney: 0 };
+  try { const p = JSON.parse(localStorage.getItem('lephare_progress') || 'null'); if (p && p.maxDay) progress = p; } catch (e) { /* ignore */ }
+  function saveProgress() { try { localStorage.setItem('lephare_progress', JSON.stringify(progress)); } catch (e) { /* ignore */ } }
+
+  // ===== 平均抽取牌組（PLAN-v2 §3.1）=====
+  const DRAWS_KEY = 'lephare_draws';
+  let draws = {};
+  try { const d = JSON.parse(localStorage.getItem(DRAWS_KEY) || 'null'); if (d && typeof d === 'object' && !Array.isArray(d)) draws = d; } catch (e) { draws = {}; }
+  function saveDraws() { try { localStorage.setItem(DRAWS_KEY, JSON.stringify(draws)); } catch (e) { /* ignore */ } }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  // v5 系列輪流：依 cat 分組 → 組內隨機洗牌後依累計抽取次數穩定排序 → 系列順序洗牌一次 → round-robin 每系列各取 1 款直到取完
+  // 抽單配額（使用者指定）：每 10 杯固定 4 杯蘋果類，其餘 6 杯由另外 14 個系列輪流
+  const APPLE_CATS = ['老饕蘋果系列', '蘋果系列'];
+  const APPLE_PER_10 = 4;
+  let qApple = null, qOther = null;   // 兩條獨立佇列，各自系列輪流、同系列內抽過最少次的排前面
+  function buildQueue(useApple) {
+    const groups = new Map();
+    getPool(state.day).forEach(r => {
+      if (APPLE_CATS.includes(r.cat) !== useApple) return;
+      if (!groups.has(r.cat)) groups.set(r.cat, []);
+      groups.get(r.cat).push(r.id);
+    });
+    const cats = shuffle([...groups.keys()]);
+    cats.forEach(c => { const ids = shuffle(groups.get(c)); ids.sort((a, b) => (draws[a] || 0) - (draws[b] || 0)); groups.set(c, ids); });
+    const out = [];
+    for (let more = true; more;) {
+      more = false;
+      cats.forEach(c => { const ids = groups.get(c); if (ids.length) { out.push(ids.shift()); if (ids.length) more = true; } });
+    }
+    return out;
+  }
+  function takeFrom(useApple, block) {
+    let q = useApple ? qApple : qOther;
+    if (!q || !q.length) { q = buildQueue(useApple); if (useApple) qApple = q; else qOther = q; }
+    let i = q.findIndex(id => block.indexOf(id) < 0);   // 佇列在區塊中途重建時，避免同一區塊出現重複飲料
+    if (i < 0) i = 0;
+    return q.splice(i, 1)[0];
+  }
+  function nextBlock() {   // 一個區塊 10 杯：4 蘋果 + 6 其他，區塊內順序打散
+    const block = [];
+    for (let i = 0; i < APPLE_PER_10; i++) { const id = takeFrom(true, block); if (id) block.push(id); }
+    for (let i = 0; i < 10 - APPLE_PER_10; i++) { const id = takeFrom(false, block); if (id) block.push(id); }
+    return shuffle(block);
+  }
+  function refillDeck() {   // 換天／重設：兩條佇列重排（依累計抽取次數），再發一個區塊
+    qApple = null; qOther = null;
+    state.deck = nextBlock();
+    return state.deck.length;
+  }
+  function drawFromDeck() {
+    if (!state.deck.length) state.deck = nextBlock();
+    const id = state.deck.shift();
+    draws[id] = (draws[id] || 0) + 1;
+    saveDraws();
+    return RECIPES.find(r => r.id === id) || RECIPES[0];
+  }
+  const getDeck = () => state.deck.slice();
+  const drawCounts = () => Object.assign({}, draws);
+  function resetDraws() { draws = {}; try { localStorage.removeItem(DRAWS_KEY); } catch (e) { /* ignore */ } refillDeck(); return true; }
+
+  const cur = () => state.orders.find(o => o.id === state.currentId) || null;
+  const byId = id => state.orders.find(o => o.id === id) || null;
+
+  // ===== 工具 =====
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.style.display = 'block';
+    GameAudio.play('error');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.display = 'none'; }, 1600);
+  }
+  function showModal(id) { $('#' + id).style.display = 'flex'; }
+  function hideModal(id) { $('#' + id).style.display = 'none'; }
+  const isOpen = id => getComputedStyle($('#' + id)).display !== 'none';
+  // v4 滿版：#app 不再縮放，座標只需扣掉 #app 的偏移（拖曳落點仍用 elementFromPoint）
+  function appPoint(clientX, clientY) {
+    const r = $('#app').getBoundingClientRect();
+    return { x: clientX - r.left, y: clientY - r.top };
+  }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // 配方表用：有 sv 的顯示「甜度可調」，否則顯示固定甜度標籤
+  const sweetLabel = r => r.sv ? '甜度可調' : ('甜度' + (r.sweet || '正常'));
+  const svLine = r => r.sv ? '甜度：' + Object.entries(r.sv.opts).map(([k, v]) => k + ' ' + v + (ING[r.sv.ing] ? ING[r.sv.ing].unit : 'g')).join('／') : '';
+  // v3 配方表「容器配置」：紙杯：…｜雪克杯：… → 倒入紙杯｜動作：…｜收尾：…
+  // 用量列：每個素材一個標籤，數字加粗是重點；容器只用小字（雪／果／萃）標在旁邊，紙杯不標
+  const V_SHORT = { s: '雪克杯', b: '果汁機', t: '萃茶機' };
+  function qtyRow(r) {
+    const chips = (r.items || []).map(i => {
+      const v = vOf(i), def = ING[i.ing] || {};
+      const amt = i.qty === -1 ? '適量' : i.qty === 0 ? '不加' : (i.qty + (kindOf(i.ing) === 'liquid' ? 'ml' : (def.unit || '')));
+      return '<span class="qc">' + (V_SHORT[v] ? '<i>' + V_SHORT[v] + '</i>' : '') + esc(nameOf(i.ing)) + '<em>' + esc(amt) + '</em></span>';
+    });
+    if (r.ice === 'cup') chips.push('<span class="qc">' + (V_SHORT[r.iceV] ? '<i>' + V_SHORT[r.iceV] + '</i>' : '') + '冰塊<em>客人指定</em></span>');
+    return '<div class="qrow"><b>用量</b><div class="chips">' + chips.join('') + '</div></div>';
+  }
+  function vesselRows(r) { return qtyRow(r); }
+  // 速記規則引擎：每條規則用述詞挑出適用的飲料；文字已用程式對過全部 108 款
+  const _has = (r, ing) => (r.items || []).some(i => i.ing === ing);
+  const _q = (r, ing) => { const i = (r.items || []).find(i => i.ing === ing); return i ? i.qty : null; };
+  const _tea = r => ['green', 'black', 'qing', 'tgy'].map(k => _q(r, k)).find(v => v) || null;
+  const _jam = r => _q(r, 'mango_jam') || _q(r, 'straw_jam');
+  const MEMO_RULES = [
+    { when: r => r.finish === 'topTea', text: '收尾：只有歐蕾（冷縮茶＋牛奶）補茶' },
+    { when: r => r.finish === 'none', text: '收尾：果汁機裡加了冰塊的四款不補水（冰淇淋芒果、楊枝、兩款奶昔）' },
+    { when: r => r.cat === '台灣茶系列' && /歐蕾/.test(r.name), text: '台灣茶歐蕾蔗糖一律 40；熱水 150／牛奶 150／鍵 5' },
+    { when: r => r.cat === '台灣茶系列' && !/歐蕾/.test(r.name), text: '台灣茶純茶：熱水 350／鍵 3；糖 L 60、M 熱 50；熱的不用蒸汽機' },
+    { when: r => /歐蕾/.test(r.name) && r.cat !== '台灣茶系列', text: '冷縮茶歐蕾：茶量＝牛奶量（L 200／M 150）；糖 L 50／M 40；補茶' },
+    { when: r => r.cat === '老饕蘋果系列', text: r => /那堤/.test(r.name) ? '老饕蘋果那堤：牛奶已甜，蔗糖只有 15；蘋果 L 3／M 2 顆' : '老饕蘋果：蔗糖 L 40／M 30；蘋果 L 3／M 2／熱 2 顆；全部在紙杯、不搖茶' },
+    { when: r => r.cat === '蘋果系列', text: '蘋果系列：蘋果 1 顆榨在紙杯；雪克杯 茶 150＋糖 40 加冰搖' },
+    { when: r => ['蜜桃系列', '芒果系列', '草莓系列', '芭樂系列'].includes(r.cat) && _has(r, 'sugar') && !/奶昔/.test(r.name), text: '水果當主角：蔗糖 40' },
+    { when: r => (['純茶系列', '水果系列', '多多系列'].includes(r.cat) || /奶茶$|珍奶|寒天波椰|梅子鐵觀音|仙草鐵觀音/.test(r.name)) && !_has(r, 'honey') && r.name !== '葡萄多多', text: '茶當主角：蔗糖 大杯冰 60、中杯熱 50' },
+    { when: r => r.name === '西瓜牛奶', text: '西瓜牛奶甜度：三分 40／五分 60（最高五分），建議三分；最低微冰' },
+    { when: r => r.name === '西瓜四季青' || r.name === '西瓜多多', text: '西瓜四季青、西瓜多多甜度：五分 60／七分 80（最低五分），建議五分；最低微冰' },
+    { when: r => r.name === '葡萄多多', text: '葡萄多多：葡萄汁 50＋多多 1 罐，紙杯攪拌；甜度 無糖 0／全糖 30，建議無糖（無糖＝不加糖）' },
+    { when: r => _has(r, 'grape'), text: r => '葡萄汁＝葡萄醬（同一瓶）：葡萄多多 50／老饕蘋果葡萄 L 30、M 20（這杯 ' + _q(r, 'grape') + '）' },
+    { when: r => _has(r, 'honey') && r.name !== '蘋果蜂蜜綠', text: '有蜂蜜就蔗糖 15；蜂蜜 中熱 25、大杯 蜂蜜四季青 50／仙草蜂蜜 40；先攪拌溶蜂蜜' },
+    { when: r => r.name === '蘋果蜂蜜綠', text: '蘋果蜂蜜綠沒有蔗糖：蜂蜜 正常 60／七分 40，先攪拌溶蜂蜜再搖' },
+    { when: r => /奶昔/.test(r.name), text: '奶昔：全部丟果汁機，蔗糖固定 30，冰塊 100、水 150，不補水' },
+    { when: r => r.temp === '熱' && _has(r, 'sugar') && !_has(r, 'honey') && r.cat !== '台灣茶系列' && !/歐蕾/.test(r.name), text: '中杯熱的糖 ＝ 大杯冰減 10' },
+    { when: r => _has(r, 'creamer'), text: r => '奶精只有奶茶和珍奶有：奶茶大杯 5 勺，其餘 4（這杯 ' + _q(r, 'creamer') + ' 勺）；連冰的都先蒸汽加熱溶奶精' },
+    { when: r => /珍奶/.test(r.name), text: '珍奶：珍珠 2 勺放紙杯；茶 200（比奶茶少 50，珍珠佔位子）' },
+    { when: r => /奶茶$/.test(r.name), text: '奶茶：茶 L 250／M 熱 200' },
+    { when: r => r.cat === '純茶系列' || r.name === '蜂蜜四季青', text: '純茶家族：茶 200' },
+    { when: r => _tea(r) === 150 && r.cat !== '老饕蘋果系列', text: '茶＋配料：茶 150' },
+    { when: r => r.name === '西瓜四季青', text: '例外：西瓜四季青的青茶是 200，不是 150' },
+    { when: r => r.name === '蘋果紅茶舞凍', text: '例外：綠茶凍佔位，紅茶只有 120' },
+    { when: r => r.actions.includes('blend') && !/奶昔/.test(r.name), text: r => _jam(r) === 35 ? '牛奶跟楊枝要重口味：果醬 35（其他果汁機飲料都 25）' : '果汁機：果丁 75＋果醬 25＋糖 40＋水，打完倒紙杯' },
+    { when: r => r.name === '芭樂芒果', text: '芭樂芒果：芒果丁減半 50；芭樂泥＋醬先放紙杯' },
+    { when: r => r.name === '芒果綠茶', text: '芒果綠茶：果汁機直接放綠茶 150 代替水，沒有杯底料' },
+    { when: r => _has(r, 'guava') && r.cat === '芭樂系列', text: r => r.name === '芭樂多多' ? '芭樂多多是唯一縮量：泥 75＋醬 25' : '芭樂：泥 100＋醬 50' },
+    { when: r => r.name === '蘋果芭樂綠', text: '蘋果芭樂綠的芭樂泥不配芭樂醬' },
+    { when: r => _has(r, 'peach'), text: '蜜桃汁永遠 80' },
+    { when: r => _has(r, 'watermelon'), text: r => '西瓜汁：四季青 160／多多 140／牛奶 200（這杯 ' + _q(r, 'watermelon') + '）' },
+    { when: r => _has(r, 'orange') && r.cat !== '老饕蘋果系列', text: r => _q(r, 'orange') === 100 ? '柳橙汁 100 是常態' : '柳橙汁例外量：' + _q(r, 'orange') + '（常態 100）' },
+    { when: r => _has(r, 'lemon') && r.cat !== '老饕蘋果系列', text: r => '檸檬汁 ' + _q(r, 'lemon') + '（優利卡 L30／M15、芭樂檸檬綠 20、檸檬多多 25、蜜桃青檸 5）' },
+    { when: r => _has(r, 'gjelly') || (_has(r, 'pearl') && !/寒天/.test(r.name)), text: '凍類、珍珠都是 2 勺' },
+    { when: r => _has(r, 'coconut') && !/寒天/.test(r.name), text: '鮮奶（含椰果）＝ 椰果 1 勺＋牛奶 150' },
+    { when: r => /寒天波椰/.test(r.name), text: '寒天波椰：珍珠、椰果、寒天各 1 勺放紙杯' },
+    { when: r => _has(r, 'grass'), text: '仙草凍：大杯 3 勺、中杯 2 勺' },
+    { when: r => _has(r, 'plum'), text: r => _q(r, 'plum') === 5 ? '梅粉 5 g 只有梅子鐵觀音（其他都 3 g）' : '梅粉 3 g（只有梅子鐵觀音是 5 g）' },
+    { when: r => _has(r, 'grapefruit'), text: r => _q(r, 'grapefruit') === 3 ? '橙柚 ＝ 柳橙 100 ＋ 葡萄柚 3 勺' : '楊枝的葡萄柚是 2 勺' },
+    { when: r => _has(r, 'icecream'), text: '冰淇淋一律 100 g' },
+    { when: r => _has(r, 'yogurt'), text: '酪酪 ＝ 優酪乳 100 ＋ 綠茶凍 2 勺' },
+    { when: r => _has(r, 'yakult'), text: '多多 1 罐放紙杯' },
+    { when: r => r.temp === '熱' && !r.actions.includes('steam'), text: '本來就熱，不用蒸汽機（只有台灣茶純茶、仙草蜂蜜這樣）' },
+    // 老饕蘋果：底料對照（L：M）
+    { when: r => r.cat === '老饕蘋果系列' && /鮮紅|鮮綠/.test(r.name), text: '老饕茶量 L 100／M 60（熱也是 100）；鮮紅＝紅茶、鮮綠＝綠茶' },
+    { when: r => r.cat === '老饕蘋果系列' && /優利卡/.test(r.name), text: '優利卡＝檸檬汁：L 30／M 15' },
+    { when: r => r.cat === '老饕蘋果系列' && /柳橙/.test(r.name), text: '老饕柳橙汁：L 60／M 40' },
+    { when: r => r.cat === '老饕蘋果系列' && /那堤/.test(r.name), text: '那堤＝牛奶：L 150／M 120，沒有茶' },
+    { when: r => r.cat === '老饕蘋果系列' && r.temp === '熱', text: '老饕熱飲：改在雪克杯做，加完料榨蘋果再蒸汽機，倒回紙杯' },
+    { when: r => r.cat === '老饕蘋果系列' && /舞動|多多/.test(r.name), text: '只有大杯：舞動＝綠茶凍 2 勺＋綠茶 80；多多＝多多 1 罐；都是蘋果 2 顆、糖 40' },
+    // 台灣茶：流程口訣
+    { when: r => r.cat === '台灣茶系列' && !/歐蕾/.test(r.name) && r.temp === '冰', text: '台灣茶冰：雪克杯先放冰，倒入萃好的茶＋糖 60 搖，倒紙杯補水' },
+    { when: r => r.cat === '台灣茶系列' && !/歐蕾/.test(r.name) && r.temp === '熱', text: '台灣茶熱：萃好直接倒紙杯，加糖 50 攪拌，補水' },
+    { when: r => r.cat === '台灣茶系列' && /歐蕾/.test(r.name) && r.temp === '冰', text: '歐蕾冰：紙杯先放牛奶 150；茶連茶包倒進雪克杯，加糖 40 加冰搖，倒紙杯' },
+    { when: r => r.cat === '台灣茶系列' && /歐蕾/.test(r.name) && r.temp === '熱', text: '歐蕾熱：蒸汽機打熱牛奶 150 倒紙杯；茶連茶包倒進紙杯，加糖 40' },
+    { when: r => r.cat === '台灣茶系列', text: '四種台灣茶（琥珀高山青、大葉烏龍、東方美人、紅韻紅茶）完全同模板' },
+    // 仙草鮮奶
+    { when: r => /仙草鮮奶/.test(r.name), text: '仙草鮮奶：牛奶 200；糖 L 50／M 40（比一般茶系少 10）' },
+  ];
+  function memoFor(r) {
+    const out = [];
+    MEMO_RULES.forEach(rule => { try { if (rule.when(r)) out.push(typeof rule.text === 'function' ? rule.text(r) : rule.text); } catch (e) { } });
+    return out;
+  }
+  function vesselLine(r) {
+    const groups = {};
+    (r.items || []).forEach(i => { const v = vOf(i); (groups[v] = groups[v] || []).push(labelOf(i.ing, i.qty)); });
+    if (r.ice === 'cup') { const v = VESSELS[r.iceV] ? r.iceV : 'c'; (groups[v] = groups[v] || []).push('冰塊(客人指定)'); }
+    const parts = VESSEL_KEYS.filter(v => groups[v]).map(v => vName(v) + '：' + groups[v].join('、') + (v === 'c' ? '' : ' → 倒入' + vName((r.pour && r.pour[v]) || 'c')));
+    parts.push('動作：' + ((r.actions || []).length ? r.actions.map(a => ACTIONS[a] || a).join('、') : '無'));
+    parts.push('收尾：' + (FINISH[r.finish] || r.finish));
+    return '容器配置：' + parts.join('｜');
+  }
+
+  // ===== 素材工作台建置 =====
+  function buildBench() {
+    const tabs = $('#tabs'), panels = $('#panels');
+    tabs.innerHTML = ''; panels.innerHTML = '';
+    TABS.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'tab'; b.dataset.tab = t.id; b.textContent = t.label;
+      b.addEventListener('click', () => { GameAudio.play('tab'); state.tab = t.id; renderTabs(); });
+      tabs.appendChild(b);
+      const p = document.createElement('div');
+      p.className = 'panel'; p.dataset.tabPanel = t.id;
+      Object.keys(ING).filter(k => t.groups.includes(ING[k].group)).forEach(k => {
+        const def = ING[k], kind = kindOf(k);
+        const el = document.createElement('div');
+        el.className = 'ing'; el.dataset.ing = k; el.dataset.kind = kind;
+        el.style.setProperty('--c', def.color);
+        // v4：素材格只留 圖示＋名稱＋單位（操作提示改放分頁列右側 #bench-hint）
+        const sub = kind === 'liquid' ? 'ml' : kind === 'weigh' ? (def.unit || 'g') : kind === 'scoop' ? '勺' : ('最多 ' + unitMax(k) + ' ' + def.unit);
+        el.innerHTML = '<div class="sw">' + (UI[k] ? UI[k].e : '•') + '</div><div class="nm">' + esc(def.name) + '</div><div class="sub">' + sub + '</div>';
+        el.addEventListener('click', () => onIngClick(k));
+        p.appendChild(el);
+      });
+      panels.appendChild(p);
+    });
+    renderTabs();
+  }
+  // 分頁列右側的一句情境提示（全頁只此一處）
+  const TAB_HINT = { tea: '把量杯拖到茶桶上，按住裝填', liquid: '把量杯拖到素材上裝填', dial: '點一下設定重量', spoon: '點一下加一勺', count: '點一下加一個' };
+  function renderTabs() {
+    $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
+    $$('[data-tab-panel]').forEach(p => { p.hidden = p.dataset.tabPanel !== state.tab; });
+    const h = $('#bench-hint'); if (h) h.textContent = TAB_HINT[state.tab] || '';
+  }
+  function onIngClick(ing) {
+    if (state.busy) { toast('動作進行中，請稍候'); return; }
+    const kind = kindOf(ing);
+    if (kind === 'liquid') { mountMeasure(ing); return; }
+    if (kind === 'weigh') { openQty(ing); return; }
+    if (kind === 'scoop') { addItem(ing, 1); return; }
+    addItem(ing, 1);
+  }
+
+  // ===== 數量選擇器（預設鍵讀 ING[id].presets）=====
+  let qtyState = null;
+  function openQty(ing) {
+    const def = ING[ing];
+    const presets = ((def && def.presets && def.presets.length) ? def.presets : [30]).map(v => ({ label: v + def.unit, v }));
+    qtyState = { ing, v: presets[0].v };
+    const box = $('#qty-box');
+    box.innerHTML = '<h2>' + (UI[ing] ? UI[ing].e : '') + ' ' + esc(def.name) + (def.tol != null ? ' <small style="font-size:13px;color:var(--muted)">⚖️ 秤重（容差 ±' + def.tol + def.unit + '）</small>' : '') + '</h2>' +
+      '<div id="qty-val"></div>' +
+      '<div class="qty-steps"><button data-d="-10">−10</button><button data-d="-5">−5</button><button data-d="-1">−1</button><button data-d="1">+1</button><button data-d="5">+5</button><button data-d="10">+10</button></div>' +
+      '<div class="qty-presets">' + presets.map(p => '<button data-v="' + p.v + '">' + esc(p.label) + '</button>').join('') + '</div>' +
+      '<div class="actions" style="justify-content:center"><button id="qty-add" class="primary">加入</button><button id="qty-cancel">取消</button></div>';
+    const renderVal = () => { $('#qty-val').textContent = qtyState.v + ' ' + def.unit; };
+    box.querySelectorAll('.qty-steps button').forEach(b => b.addEventListener('click', () => {
+      qtyState.v = clamp(qtyState.v + Number(b.dataset.d), 0, 500); renderVal();
+    }));
+    box.querySelectorAll('.qty-presets button').forEach(b => b.addEventListener('click', () => { qtyState.v = Number(b.dataset.v); renderVal(); }));
+    $('#qty-add').addEventListener('click', () => { if (qtyState.v > 0) addItem(ing, qtyState.v); else toast('數量需大於 0'); hideModal('modal-qty'); });
+    $('#qty-cancel').addEventListener('click', () => hideModal('modal-qty'));
+    renderVal();
+    GameAudio.play('ui_open');
+    showModal('modal-qty');
+  }
+
+  // ===== 容器（v3）=====
+  // 容器內容變動後的局部重繪
+  function renderVesselChange() { renderCup(); renderVessel(); renderIce(); renderPanel(); renderButtons(); }
+  function selectVessel(v) {
+    if (!VESSELS[v]) return false;
+    state.active = v;
+    renderVesselChange();
+    return true;
+  }
+  // 加入指定容器（預設 active）；item.v = 加入時的容器。勺料／一般素材同容器合併、ice 覆蓋。
+  function addItem(ing, qty, v) {
+    const def = ING[ing]; if (!def) { toast('未知素材 ' + ing); return false; }
+    qty = Number(qty); if (!(qty > 0)) return false;
+    v = VESSELS[v] ? v : state.active;
+    const kind = kindOf(ing), items = ves(v).items;
+    if (kind === 'ice') return setIce(qty, v) > 0;   // 杯內冰走覆蓋邏輯
+    const it = items.find(i => i.ing === ing);
+    if (kind === 'unit') {
+      const max = unitMax(ing);
+      if (it) { if (it.qty >= max) { toast(def.name + ' 最多 ' + max + ' ' + def.unit); return false; } it.qty = Math.min(max, it.qty + qty); }
+      else items.push({ ing, qty: Math.min(max, qty), v });
+    } else {
+      if (it) it.qty += qty; else items.push({ ing, qty, v });
+    }
+    state.history.push({ v, ing });
+    GameAudio.play({ liquid: 'pour', weigh: 'qty_confirm', scoop: 'scoop', unit: 'unit' }[kind]);
+    renderVesselChange();
+    return true;
+  }
+  // 冰量（% 杯高）：覆蓋該容器唯一的 ice 項；0 → 移除。setIce(pct, v = active, opts)
+  function setIce(pct, v, opts) {
+    if (v && typeof v === 'object') { opts = v; v = undefined; }   // 相容 v2 呼叫 setIce(pct, {silent})
+    pct = clamp(Math.round(Number(pct) || 0), 0, 100);
+    v = VESSELS[v] ? v : state.active;
+    const items = ves(v).items;
+    const idx = items.findIndex(i => i.ing === 'ice');
+    if (pct <= 0) { if (idx >= 0) items.splice(idx, 1); }
+    else if (idx >= 0) items[idx].qty = pct;
+    else { items.push({ ing: 'ice', qty: pct, v }); state.history.push({ v, ing: 'ice' }); }
+    if (!(opts && opts.silent)) GameAudio.play(pct <= 0 ? 'dump' : 'ice');
+    renderVesselChange();
+    return pct;
+  }
+  const icePct = v => { const it = ves(v == null ? state.active : v).items.find(i => i.ing === 'ice'); return it ? Number(it.qty) || 0 : 0; };
+  // 把 from 的全部內容倒進 to；同 ing 合併：一般／勺料加總、ice 加總上限 100、顆件不超過上限。回傳搬動筆數。
+  // 容器路徑：倒入紙杯（to==='c'）保留每筆 item.v／vs 供評分；倒入其他容器（v5 含紙杯→雪克杯）則把素材改記為目標容器（放錯紙杯可補救）。
+  function pourInto(from, to) {
+    if (!VESSELS[from] || !VESSELS[to] || from === to) return 0;
+    const src = state.vessels[from].items, dst = state.vessels[to].items;
+    if (!src.length) return 0;
+    if (state.busy) { toast('動作進行中，請稍候'); return 0; }
+    const relabel = from === 'c' && to !== 'c';   // 只有「從紙杯倒出去」才改記容器（放錯紙杯可補救）；萃茶機→雪克杯等流程保留原容器
+    let n = 0;
+    src.forEach(it => {
+      if (relabel) { it.v = to; if (it.vs) it.vs = [to]; }
+      const ex = dst.find(d => d.ing === it.ing);
+      if (ex) {
+        const kind = kindOf(it.ing), sum = Number(ex.qty || 0) + Number(it.qty || 0);
+        ex.qty = kind === 'ice' ? Math.min(100, sum) : kind === 'unit' ? Math.min(unitMax(it.ing), sum) : sum;
+        if (relabel) { ex.v = to; ex.vs = [to]; }
+        else { const vs = new Set(vsOf(ex)); vsOf(it).forEach(x => vs.add(x)); ex.vs = [...vs]; }   // 記住所有來源容器供評分
+      } else dst.push(it);
+      n++;
+    });
+    src.length = 0;   // 就地清空（維持陣列參考，紙杯別名不變）
+    GameAudio.play('pour');
+    renderVesselChange();
+    return n;
+  }
+  let iceFill = null;
+  function startIceFill(e) {
+    if (iceFill) return;
+    if (state.busy) { toast('動作進行中，請稍候'); return; }
+    if (e && e.preventDefault) e.preventDefault();
+    $('#ice-fill').classList.add('filling');
+    GameAudio.startLoop('ice');
+    iceFill = setInterval(() => {
+      if (state.paused) return;
+      const next = icePct() + 2;
+      setIce(Math.min(100, next), state.active, { silent: true });
+      if (next >= 100) stopIceFill();
+    }, 50);
+  }
+  function stopIceFill() { if (iceFill) { clearInterval(iceFill); iceFill = null; } $('#ice-fill').classList.remove('filling'); GameAudio.stopLoop('ice'); }
+  // 撤銷：移除最後一筆加入的 item（任一容器；勺料 qty>1 則 −1 勺）；沒有素材時撤銷最後一個動作
+  function undo() {
+    let done = false;
+    while (!done && state.history.length) {
+      const h = state.history.pop();
+      let items = state.vessels[h.v].items, idx = items.findIndex(i => i.ing === h.ing);
+      if (idx < 0) { // 倒入後已搬到別的容器：改到其他容器找
+        for (const v of VESSEL_KEYS) { const j = state.vessels[v].items.findIndex(i => i.ing === h.ing); if (j >= 0) { items = state.vessels[v].items; idx = j; break; } }
+      }
+      if (idx < 0) continue;
+      const it = items[idx];
+      if (kindOf(it.ing) === 'scoop' && it.qty > 1) it.qty -= 1; else items.splice(idx, 1);
+      done = true;
+    }
+    if (!done) { // 沒有歷史（例：外部直接塞入）：從 active 起找非空容器移除最後一筆
+      const v = [state.active].concat(VESSEL_KEYS).find(k => state.vessels[k].items.length);
+      if (v) {
+        const items = state.vessels[v].items, last = items[items.length - 1];
+        if (kindOf(last.ing) === 'scoop' && last.qty > 1) last.qty -= 1; else items.pop();
+        done = true;
+      }
+    }
+    if (!done && state.cup.actions.length) state.cup.actions.pop();
+    GameAudio.play('undo');
+    render();
+  }
+  function resetCup(keepSize) {
+    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.active = 's';
+    if (!keepSize) { state.cup.size = 'M'; state.cup.temp = '冰'; }
+    GameAudio.play('reset');
+    render();
+  }
+  function setFinish(code) { state.cup.finish = FINISH[code] ? code : 'none'; GameAudio.play('finish_' + state.cup.finish); renderPanel(); }
+  function setSize(s) { state.cup.size = s === 'L' ? 'L' : 'M'; renderCup(); }
+  function setTemp(t) { state.cup.temp = t === '熱' ? '熱' : '冰'; renderCup(); }
+
+  // ===== 量杯 =====
+  function mountMeasure(ing) {
+    if (!ING[ing] || kindOf(ing) !== 'liquid') { toast('量杯只能裝液體'); return false; }
+    const m = state.measure;
+    if (m.src && m.src !== ing && m.ml > 0) { toast('量杯已裝有「' + ING[m.src].name + '」，請先倒掉'); flashMeasure(); return false; }
+    m.src = ing; GameAudio.play('mount'); renderMeasure(); return true;
+  }
+  function setMeasure(ml) { GameAudio.play(Number(ml) > state.measure.ml ? 'tick_up' : 'tick_down'); state.measure.ml = clamp(Math.round(Number(ml) || 0), 0, 500); renderMeasure(); }
+  function emptyMeasure() { GameAudio.play('dump'); state.measure.ml = 0; state.measure.src = null; renderMeasure(); }
+  // 量杯倒入：pour(v = active 容器)；#btn-pour／拖到 #vessel-view → active；拖到 #cup → 紙杯
+  function pour(v) {
+    const m = state.measure;
+    if (!m.src) { toast('量杯尚未掛上液體來源（拖曳量杯到素材上）'); return false; }
+    if (m.ml <= 0) { toast('量杯是空的，請先按住「裝填」'); return false; }
+    v = VESSELS[v] ? v : state.active;
+    if (!addItem(m.src, m.ml, v)) return false;
+    m.ml = 0; renderMeasure(); return true;
+  }
+  function flashMeasure() { const el = $('#measure'); el.style.borderColor = 'var(--red)'; setTimeout(() => { el.style.borderColor = ''; }, 500); }
+  let fill = null;
+  function startFill(e) {
+    if (fill) return;
+    if (!state.measure.src) { toast('請先把量杯拖到液體來源上'); return; }
+    if (e && e.preventDefault) e.preventDefault();
+    const t0 = performance.now();
+    $('#m-fill').classList.add('filling');
+    fill = setInterval(() => {
+      if (state.paused) return;
+      const inc = performance.now() - t0 < 1000 ? 5 : 10;
+      state.measure.ml = Math.min(500, state.measure.ml + inc);
+      renderMeasure();
+      if (state.measure.ml >= 500) stopFill();
+    }, 50);
+    GameAudio.startLoop('fill');
+  }
+  function stopFill() { if (fill) { clearInterval(fill); fill = null; } $('#m-fill').classList.remove('filling'); GameAudio.stopLoop('fill'); }
+
+  // 拖曳
+  let drag = null;
+  function setupDrag() {
+    const mEl = $('#measure'), ghost = $('#ghost');
+    mEl.addEventListener('pointerdown', e => {
+      if (e.target.closest('button')) return;
+      if (e.button !== undefined && e.button !== 0) return;
+      drag = { id: e.pointerId, over: null };
+      ghost.textContent = state.measure.ml + 'ml';
+      ghost.style.background = state.measure.src ? ING[state.measure.src].color : 'rgba(255,255,255,.85)';
+      ghost.style.display = 'block';
+      moveGhost(e);
+      mEl.classList.add('dragging');
+      try { mEl.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      e.preventDefault();
+    });
+    document.addEventListener('pointermove', e => {
+      if (!drag) return;
+      moveGhost(e);
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const tgt = el && (el.closest('.ing[data-kind=liquid]') || el.closest('#cup') || el.closest('#vessel-view'));
+      if (drag.over && drag.over !== tgt) drag.over.classList.remove('drop');
+      if (tgt) tgt.classList.add('drop');
+      drag.over = tgt || null;
+    });
+    const end = e => {
+      if (!drag) return;
+      const over = drag.over; drag = null;
+      if (over) over.classList.remove('drop');
+      ghost.style.display = 'none'; mEl.classList.remove('dragging');
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (!el) return;
+      const ingEl = el.closest('.ing[data-kind=liquid]');
+      if (ingEl) { mountMeasure(ingEl.dataset.ing); return; }
+      if (el.closest('#cup')) { pour('c'); return; }          // 拖到紙杯 → 倒入紙杯
+      if (el.closest('#vessel-view')) pour(state.active);     // 拖到容器槽 → 倒入 active 容器
+    };
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', () => { if (drag) { if (drag.over) drag.over.classList.remove('drop'); drag = null; ghost.style.display = 'none'; mEl.classList.remove('dragging'); } });
+    function moveGhost(e) { const p = appPoint(e.clientX, e.clientY); ghost.style.left = p.x + 'px'; ghost.style.top = p.y + 'px'; }
+  }
+
+  // ===== 設備動作 =====
+  // 只對 active 容器有效：容器須支援該動作（VESSELS[v].actions）且前置成立
+  function doAction(code) {
+    const def = ACTION_DEF[code];
+    if (!def) { toast('未知動作 ' + code); return Promise.resolve(false); }
+    if (state.busy) { toast('動作進行中'); return Promise.resolve(false); }
+    const v = state.active;
+    if (!VESSELS[v].actions.includes(code)) { toast(ACTIONS[code] + '：' + VESSELS[v].name + '不能做這個動作（請切到 ' + actionVessels(code).map(vName).join('／') + '）'); return Promise.resolve(false); }
+    if (!def.pre(state.vessels[v])) { toast(VESSELS[v].name + ' ' + ACTIONS[code] + '：' + def.why); return Promise.resolve(false); }
+    return new Promise(resolve => {
+      state.busy = code;
+      action = { code, v, ms: def.ms, t: 0, resolve };
+      GameAudio.startLoop(code);
+      $('#staff').classList.add('busy'); $('#staff-action').textContent = def.emoji;
+      $('#action-progress .lbl').textContent = VESSELS[v].name + ' ' + ACTIONS[code] + '…';
+      renderVessel(); renderCup(); renderButtons();
+    });
+  }
+  function finishAction() {
+    const a = action; action = null; state.busy = null;
+    GameAudio.stopLoop(a.code);
+    const acts = state.cup.actions;
+    if (BREW_KEYS.includes(a.code)) { // brew3 / brew5 互斥：後按者取代前者
+      BREW_KEYS.filter(k => k !== a.code).forEach(k => { const i = acts.indexOf(k); if (i >= 0) acts.splice(i, 1); });
+    }
+    if (!acts.includes(a.code)) acts.push(a.code);
+    $('#staff').classList.remove('busy');
+    $('#action-progress .bar').style.width = '0%'; $('#action-progress .lbl').textContent = '';
+    const fig = $('#vessel-view .vv-fig'); if (fig) fig.style.setProperty('--p', '0');
+    render();
+    a.resolve(true);
+  }
+
+  // ===== 客人 =====
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  function spawnCustomer() {
+    let recipe = null;
+    if (state.forcedNext) { recipe = RECIPES.find(r => r.id === state.forcedNext) || null; state.forcedNext = null; } // 不動牌組、不計次
+    if (!recipe) recipe = drawFromDeck();
+    const iceLevel = recipe.ice === 'cup' ? pick(Object.keys(ICE_LEVELS)) : null;
+    const sweetKey = recipe.sv && recipe.sv.opts ? pick(Object.keys(recipe.sv.opts)) : (recipe.sweet || '正常');
+    const order = {
+      id: 'o' + (++orderSeq), recipe, iceLevel, sweetKey,
+      target: resolveOrder(recipe, { iceLevel, sweetKey }),
+      elapsed: 0, spawnedAt: Date.now(), accepted: false,
+      patienceMax: patienceFor(recipe), face: pick(FACES), color: pick(BODY_COLORS),
+    };
+    state.orders.push(order);
+    state.spawned++; spawnTimer = 0;
+    GameAudio.play('customer');
+    renderCounter(); renderHud();
+    return order;
+  }
+  function forceNextRecipe(id) { state.forcedNext = RECIPES.some(r => r.id === id) ? id : null; return state.forcedNext; }
+  function acceptOrder(id) {
+    const o = byId(id); if (!o) return false;
+    if (!o.accepted) {
+      if (state.queue.length >= 3) { toast('待做清單已滿（最多 3 張）'); return false; }
+      o.accepted = true; state.queue.push(o.id);
+      GameAudio.play('accept');
+    }
+    if (!state.currentId || !byId(state.currentId)) state.currentId = o.id;
+    render(); return true;
+  }
+  function switchCurrent(id) {
+    if (id === state.currentId) return;
+    if (!allEmpty() && !window.confirm('容器內還有內容，要切換訂單嗎？（內容會保留）')) return;
+    state.currentId = id; render();
+  }
+  function onCustomerClick(id) {
+    const o = byId(id); if (!o) return;
+    if (!o.accepted) acceptOrder(id); else switchCurrent(id);
+  }
+  function leaveCustomer(id) {
+    const el = $('#counter .customer[data-order-id="' + id + '"]');
+    if (!el) return;
+    el.classList.add('leaving');
+    setTimeout(() => el.remove(), 600);
+  }
+
+  // ===== 送出 =====
+  // 只以紙杯內容評分（留在其他容器的東西 = 缺少）
+  function snapshotCup() {
+    const c = state.cup;
+    return { size: c.size, temp: c.temp, items: c.items.map(i => Object.assign({ ing: i.ing, qty: i.qty, v: vOf(i) }, i.vs ? { vs: i.vs.slice() } : {})), actions: c.actions.slice(), finish: c.finish };
+  }
+  function serve() {
+    let order = cur();
+    if (!order) {
+      order = state.orders.find(o => o.accepted) || state.orders[0] || null;
+      if (!order) { toast('目前沒有訂單'); return null; }
+      if (!order.accepted) { order.accepted = true; state.queue.push(order.id); }
+      state.currentId = order.id;
+    }
+    const cup = snapshotCup();
+    const target = order.target || resolveOrder(order.recipe, { iceLevel: order.iceLevel, sweetKey: order.sweetKey });
+    const sc = score(target, cup);
+    const T = timeFactor(order.elapsed, order.patienceMax);
+    const sat = sc.Q * T;
+    const stars = starsFor(sat);
+    const money = moneyFor(order.recipe, sat);
+    state.money += money; state.served++; state.starSum += stars;
+    if (stars === 5) state.fiveStars++;
+    state.slowest = Math.max(state.slowest, order.elapsed);
+    state.orders = state.orders.filter(o => o !== order);
+    state.queue = state.queue.filter(i => i !== order.id);
+    state.currentId = state.queue.find(i => byId(i)) || null;
+    leaveCustomer(order.id);
+    GameAudio.play('serve');
+    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.cup.size = 'M'; state.cup.temp = '冰'; state.active = 's';
+    const result = { order, cup, score: sc, T, sat, stars, money, elapsed: order.elapsed };
+    showResult(result);
+    render();
+    if (state.money > progress.bestMoney) { progress.bestMoney = state.money; saveProgress(); }
+    return result;
+  }
+  function showResult(r) {
+    const box = $('#result-box');
+    const f = v => Math.round(v);
+    box.innerHTML = '<h2>' + esc(bubbleText(r.order)) + '</h2>' +
+      '<div class="stars">' + '★'.repeat(r.stars) + '<span class="off">' + '★'.repeat(5 - r.stars) + '</span></div>' +
+      '<div class="score3">' +
+      '<div><small>素材 60%</small><b>' + f(r.score.S_ing) + '</b></div>' +
+      '<div><small>製程 25%</small><b>' + f(r.score.S_act) + '</b></div>' +
+      '<div><small>收尾 15%</small><b>' + f(r.score.S_fin) + '</b></div></div>' +
+      '<div class="grid">' +
+      '<div>品質 Q</div><b>' + f(r.score.Q) + '</b>' +
+      '<div>時間係數</div><b>' + r.T.toFixed(2) + '（' + Math.round(r.elapsed) + 's / ' + r.order.patienceMax + 's）</b>' +
+      '<div>滿意度</div><b>' + f(r.sat) + '</b></div>' +
+      '<div class="money">+ $' + r.money + (r.stars === 5 ? ' <small>(含小費 $10)</small>' : '') + '</div>' +
+      (r.score.details.length ? '<ul>' + r.score.details.map(d => '<li>' + esc(d) + '</li>').join('') + '</ul>' : '<div class="perfect">完美！</div>') +
+      '<button id="btn-result-close" class="primary">關閉並繼續 ▶</button>';
+    GameAudio.play('star' + r.stars); if (r.money > 0) GameAudio.play('coin', 0.35);
+    showModal('modal-result');
+    $('#btn-result-close').addEventListener('click', hideResult);
+    // 結算需手動關閉；開著時暫停（與配方表同一機制）
+    if (state.started && !state.dayOver && !state.paused) { pausedByResult = true; setPaused(true); }
+    else { pausedByResult = false; applyPauseUI(); }
+  }
+  function hideResult() {
+    if (!isOpen('modal-result')) return;
+    hideModal('modal-result');
+    if (pausedByResult) { pausedByResult = false; if (state.paused) setPaused(false); }
+    else applyPauseUI();
+    checkDayEnd();
+  }
+  function checkDayEnd() {
+    if (!state.started || state.dayOver) return;
+    if (state.served >= dayConf(state.day).customers) {
+      state.dayOver = true;
+      progress.maxDay = Math.max(progress.maxDay, state.day + 1);
+      saveProgress();
+      showDayEnd();
+    }
+  }
+  function showDayEnd() {
+    const box = $('#dayend-box');
+    const avg = state.served ? (state.starSum / state.served).toFixed(1) : '-';
+    box.innerHTML = '<h2>🌙 Day ' + state.day + ' 結算</h2>' +
+      '<div class="grid">' +
+      '<div>客人數</div><b>' + state.served + '</b>' +
+      '<div>平均星等</div><b>★ ' + avg + '</b>' +
+      '<div>總收入</div><b>$ ' + state.money.toLocaleString() + '</b>' +
+      '<div>★5 次數</div><b>' + state.fiveStars + '</b>' +
+      '<div>最慢一杯</div><b>' + Math.round(state.slowest) + ' 秒</b></div>' +
+      '<div class="actions" style="justify-content:center"><button id="de-next" class="primary">下一天</button><button id="de-retry">重玩本日</button><button id="de-menu">回主選單</button></div>';
+    $('#de-next').addEventListener('click', () => startDay(state.day + 1));
+    $('#de-retry').addEventListener('click', () => startDay(state.day));
+    $('#de-menu').addEventListener('click', () => { hideModal('modal-day-end'); state.started = false; buildDayPicker(); showModal('modal-start'); GameAudio.music('menu'); });
+    GameAudio.music('dayend'); GameAudio.play('dayend_chime');
+    showModal('modal-day-end');
+  }
+
+  // ===== 開店 =====
+  let pickedDay = 1;
+  function buildDayPicker() {
+    const wrap = $('#day-picker'); wrap.innerHTML = '';
+    pickedDay = clamp(pickedDay, 1, progress.maxDay);
+    for (let d = 1; d <= 5; d++) {
+      const b = document.createElement('button');
+      b.className = 'day-btn' + (d === pickedDay ? ' on' : ''); b.dataset.day = d;
+      const locked = d > progress.maxDay;
+      b.disabled = locked;
+      b.innerHTML = (locked ? '🔒 ' : '') + 'Day ' + (d === 5 ? '5+' : d) + '<small>' + DAY_CONFIG[d].customers + ' 位客人</small>';
+      b.addEventListener('click', () => { pickedDay = d; buildDayPicker(); });
+      wrap.appendChild(b);
+    }
+  }
+  function startDay(day) {
+    day = Math.max(1, Math.floor(Number(day) || 1));
+    state.day = day; state.started = true; state.paused = false; state.dayOver = false;
+    state.money = 0; state.served = 0; state.spawned = 0; state.starSum = 0; state.fiveStars = 0; state.slowest = 0;
+    state.orders = []; state.queue = []; state.currentId = null; state.forcedNext = null;
+    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.cup.size = 'M'; state.cup.temp = '冰'; state.active = 's';
+    state.measure.src = null; state.measure.ml = 0;
+    if (action) { const a = action; action = null; state.busy = null; $('#staff').classList.remove('busy'); a.resolve(false); }
+    stopFill(); stopIceFill();
+    refillDeck(); // 依新 pool 與累計抽取次數重建牌組
+    GameAudio.stopAllLoops(true); GameAudio.music('play'); GameAudio.play('open');
+    ['modal-start', 'modal-recipes', 'modal-result', 'modal-day-end', 'modal-qty'].forEach(hideModal);
+    pausedByRecipes = false; pausedByResult = false; applyPauseUI();
+    $('#counter').querySelectorAll('.customer').forEach(el => el.remove());
+    // 第一位客人於開店後約 1.5 秒進門（由主循環抽牌），之後照 interval
+    spawnTimer = Math.max(0, dayConf(day).interval - 1.5);
+    render();
+    return true;
+  }
+
+  // ===== 暫停 =====
+  // v6：#btn-pause 與配方表共用同一機制；pausedByRecipes 記錄「這次暫停是配方表造成的」，關閉配方表時才自動恢復
+  let pausedByRecipes = false, pausedByResult = false;
+  function applyPauseUI() {
+    // 配方表／結算開著時不顯示「已暫停」覆蓋層（Modal 本身就是暫停狀態的畫面）
+    $('#pause-overlay').style.display = state.paused && !isOpen('modal-recipes') && !isOpen('modal-result') ? 'flex' : 'none';
+    $('#btn-pause').textContent = state.paused ? '▶ 繼續' : '⏸ 暫停';
+  }
+  function setPaused(p) {
+    state.paused = !!p;
+    GameAudio.setPaused(state.paused);
+    applyPauseUI();
+  }
+  function togglePause() {
+    if (!state.started) return;
+    if (state.dayOver) { showDayEnd(); return; }
+    if (state.paused) { pausedByRecipes = false; pausedByResult = false; }   // 玩家親自按「繼續」：之後關 Modal 不再自動處理
+    setPaused(!state.paused);
+  }
+
+  // ===== 配方表 =====
+  let rcat = '全部', rquery = '';
+  function buildRecipeTabs() {
+    const wrap = $('#rtabs'); wrap.innerHTML = '';
+    ['全部'].concat(CATEGORIES).forEach(c => {
+      const b = document.createElement('button'); b.className = 'rtab' + (c === rcat ? ' on' : ''); b.textContent = c; b.dataset.cat = c;
+      b.addEventListener('click', () => { rcat = c; buildRecipeTabs(); renderRecipeList(); });
+      wrap.appendChild(b);
+    });
+  }
+  function renderRecipeList(keepOpen) {
+    const ul = $('#recipe-list');
+    const openIds = keepOpen ? new Set($$('#recipe-list .recipe-row.open').map(r => r.dataset.recipeId)) : new Set();
+    const c = cur();
+    let list = RECIPES.filter(r => (rcat === '全部' || r.cat === rcat) && (!rquery || (r.full + r.cat + r.sweet).toLowerCase().includes(rquery)));
+    if (c) { list = list.filter(r => r.id !== c.recipe.id); list.unshift(c.recipe); }
+    ul.innerHTML = list.map(r => {
+      const isCur = c && r.id === c.recipe.id;
+      // 展開只留三塊：原始流程、各容器要放什麼、這款適用的速記規則（其餘都是重複資訊，拿掉）
+      return '<li class="recipe-row' + (isCur ? ' current' : '') + (openIds.has(r.id) ? ' open' : '') + '" data-recipe-id="' + r.id + '">' +
+        '<div class="r-head">' + (isCur ? '👉 ' : '') + '<span>' + esc(r.full) + '</span><span class="sw">' + esc(sweetLabel(r)) + '</span><span class="cat">' + esc(r.cat) + '</span></div>' +
+        '<div class="r-body"><div class="steps">' + esc(r.steps) + '</div>' +
+        (isCur ? '<div class="sv">👉 這位客人：' + esc(bubbleText(c)) + '</div>' : '') +
+        vesselRows(r) +
+        '<div class="r-memo"><b>速記</b><ul>' + memoFor(r).map(t => '<li>' + esc(t) + '</li>').join('') + '</ul></div>' +
+        '</div></li>';
+    }).join('');
+    ul.querySelectorAll('.recipe-row').forEach(li => li.addEventListener('click', () => li.classList.toggle('open')));
+  }
+  // v6：開配方表＝暫停（耐心／動作計時停止）；關閉時若是配方表造成的暫停則恢復，玩家原本手動暫停的維持暫停
+  // ===== 速記法分頁 =====
+  let recipeMode = 'list';
+  const FAM_NAME = { f1: '純茶家族', f2: '奶茶／珍奶家族', f3: '冷縮茶歐蕾', f4: '台灣茶歐蕾', f5: '台灣茶純茶', f6: '老饕蘋果家族', f7: '蘋果系列', f8: '果汁機家族', f9: '芭樂家族', f10: '蜜桃家族', f11: '柳橙／西瓜／多多', f12: '配料茶（寒天波椰、梅子、仙草）' };
+  function familyOf(r) {
+    if (!r) return null;
+    if (/奶茶$|珍奶/.test(r.name)) return 'f2';
+    if (/歐蕾/.test(r.name)) return r.cat === '台灣茶系列' ? 'f4' : 'f3';
+    if (r.cat === '台灣茶系列') return 'f5';
+    if (r.cat === '純茶系列' || r.name === '蜂蜜四季青') return 'f1';
+    if (r.cat === '老饕蘋果系列') return 'f6';
+    if (r.cat === '蘋果系列') return 'f7';
+    if (r.actions.includes('blend')) return 'f8';
+    if (r.cat === '芭樂系列') return 'f9';
+    if (r.cat === '蜜桃系列') return 'f10';
+    if (['水果系列', '西瓜系列', '多多系列'].includes(r.cat)) return 'f11';
+    return 'f12';
+  }
+  function renderMemo() {
+    const panel = $('#memo-panel');
+    if (!panel.dataset.built) { panel.appendChild($('#memo-tpl').content.cloneNode(true)); panel.dataset.built = '1'; }
+    const o = cur(); const fam = o ? familyOf(o.recipe) : null;
+    panel.querySelectorAll('.fam').forEach(el => el.classList.toggle('hl', el.dataset.fam === fam));
+    const now = panel.querySelector('#memo-now');
+    if (fam) { now.hidden = false; now.textContent = '👉 這杯「' + o.recipe.name + '」屬於：' + FAM_NAME[fam] + '（已標示）'; }
+    else now.hidden = true;
+    return fam;
+  }
+  function setRecipeMode(mode) {
+    recipeMode = mode === 'memo' ? 'memo' : 'list';
+    const memo = recipeMode === 'memo';
+    $('#rmode-list').classList.toggle('on', !memo); $('#rmode-memo').classList.toggle('on', memo);
+    $('#recipe-list').hidden = memo; $('#rtabs').hidden = memo; $('#recipe-search').hidden = memo;
+    $('#memo-panel').hidden = !memo;
+    if (memo) {
+      const fam = renderMemo();
+      const target = fam && $('#memo-panel .fam[data-fam="' + fam + '"]');
+      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+    }
+  }
+  function openRecipes() {
+    buildRecipeTabs(); renderRecipeList(); GameAudio.play('ui_open'); showModal('modal-recipes');
+    setRecipeMode(recipeMode);
+    if (state.started && !state.dayOver && !state.paused) { pausedByRecipes = true; setPaused(true); }
+    else { pausedByRecipes = false; applyPauseUI(); }
+  }
+  function closeRecipes() {
+    if (!isOpen('modal-recipes')) return;
+    hideModal('modal-recipes');
+    if (pausedByRecipes) { pausedByRecipes = false; if (state.paused) setPaused(false); }
+    else applyPauseUI();
+  }
+
+  // ===== Render =====
+  function renderHud() {
+    $('#hud-day').textContent = 'Day ' + state.day;
+    $('#hud-cust').textContent = '客人 ' + state.served + '/' + dayConf(state.day).customers;
+    $('#hud-money').textContent = '$ ' + state.money.toLocaleString();
+    $('#hud-star').textContent = '★ ' + (state.served ? (state.starSum / state.served).toFixed(1) : '-');
+  }
+  function makeCustomer(o) {
+    const el = document.createElement('div');
+    el.className = 'customer'; el.dataset.orderId = o.id; el.style.setProperty('--c', o.color);
+    // v4：泡泡兩行（飲料名／chips）＋耐心條在泡泡底；頭像旁放「已接／製作中」與秒數
+    el.innerHTML = '<div class="bubble"><b>' + esc(o.recipe.name) + '</b><span class="meta">' + orderChips(o) + '</span><div class="patience"><div class="fill"></div></div></div>' +
+      '<div class="person"><div class="avatar"><div class="face">' + o.face + '</div><div class="body"></div></div>' +
+      '<div class="tags"><span class="badge">已接</span><span class="hint">' + o.patienceMax + 's</span></div></div>';
+    el.addEventListener('click', () => onCustomerClick(o.id));
+    return el;
+  }
+  function renderCounter() {
+    const wrap = $('#counter');
+    const shown = state.orders.slice(0, 5), ids = new Set(shown.map(o => o.id));
+    wrap.querySelectorAll('.customer').forEach(el => { if (!ids.has(el.dataset.orderId) && !el.classList.contains('leaving')) el.remove(); });
+    shown.forEach((o, i) => {
+      let el = wrap.querySelector('.customer[data-order-id="' + o.id + '"]');
+      if (!el) { el = makeCustomer(o); wrap.appendChild(el); }
+      el.style.order = String(i);   // v4：flex 等分格位，不再絕對定位
+      el.classList.toggle('accepted', !!o.accepted);
+      el.classList.toggle('current', o.id === state.currentId);
+      el.querySelector('.badge').textContent = o.id === state.currentId ? '製作中' : '已接';
+    });
+    const more = state.orders.length - shown.length;
+    $('#counter-more').textContent = more > 0 ? '+' + more + ' 位等候中' : '';
+    updatePatience();
+  }
+  function updatePatience() {
+    $$('#counter .customer').forEach(el => {
+      const o = byId(el.dataset.orderId); if (!o) return;
+      const ratio = 1 - o.elapsed / o.patienceMax;
+      const fillEl = el.querySelector('.patience .fill');
+      fillEl.style.width = Math.max(0, ratio * 100) + '%';
+      fillEl.className = 'fill' + (ratio < 0.3 ? ' late' : ratio < 0.6 ? ' warn' : '');
+      el.classList.toggle('over', ratio <= 0);
+      if (ratio <= 0) GameAudio.playOnce('overtime', o.id);
+      el.querySelector('.hint').textContent = ratio <= 0 ? '超時 ' + Math.round(o.elapsed - o.patienceMax) + 's' : Math.ceil(o.patienceMax - o.elapsed) + 's';
+    });
+    GameAudio.setTense(state.orders.some(o => o.elapsed >= o.patienceMax));
+  }
+  function renderQueue() {
+    const ul = $('#queue-list');
+    const q = state.queue.map(byId).filter(Boolean);
+    ul.innerHTML = q.length ? q.map(o => '<li data-order-id="' + o.id + '" class="' + (o.id === state.currentId ? 'current' : '') + '">' + esc(bubbleText(o)) + '<small>' + esc(o.recipe.cat) + (o.id === state.currentId ? ' ・ 製作中' : '') + '</small></li>').join('') : '<li class="empty">尚無待做訂單</li>';
+    ul.querySelectorAll('li[data-order-id]').forEach(li => li.addEventListener('click', () => switchCurrent(li.dataset.orderId)));
+  }
+  const liquidTotal = items => items.filter(i => kindOf(i.ing) === 'liquid').reduce((s, i) => s + Number(i.qty || 0), 0);
+  function renderCup() {
+    const c = state.cup;
+    const liquids = c.items.filter(i => kindOf(i.ing) === 'liquid');
+    const total = liquids.reduce((s, i) => s + i.qty, 0);
+    $('#cup-total').textContent = total + ' ml';
+    // 冰層在下（高度 = pct% 杯高），液面畫在其上
+    const pct = icePct('c');
+    $('#cup .ice').style.height = pct + '%';
+    const liq = $('#cup .liquid');
+    liq.style.bottom = pct + '%';
+    liq.style.height = Math.max(0, Math.min(100 - pct, total / 700 * 100)) + '%';
+    if (liquids.length) { const big = liquids.reduce((a, b) => (b.qty > a.qty ? b : a)); liq.style.background = ING[big.ing].color; }
+    $('#cup .icons').textContent = c.items.filter(i => kindOf(i.ing) !== 'liquid' && i.ing !== 'ice').map(i => (UI[i.ing] ? UI[i.ing].e : '')).join('');
+    $('#cup').classList.toggle('hot', c.temp === '熱');
+    $('#cup').classList.toggle('sel', state.active === 'c');
+    const va = $('#cup .vact'); va.hidden = !(action && action.v === 'c'); va.textContent = action && action.v === 'c' ? ACTION_DEF[action.code].emoji : '';
+    ['M', 'L'].forEach(s => $('#cup-size-' + s).classList.toggle('on', c.size === s));
+    $('#cup-temp-cold').classList.toggle('on', c.temp === '冰');
+    $('#cup-temp-hot').classList.toggle('on', c.temp === '熱');
+    renderIce();
+  }
+  // 容器槽：分頁、active 容器的圖與摘要、倒入按鈕
+  function renderVessel() {
+    const v = state.active, V = VESSELS[v], items = state.vessels[v].items;
+    $$('.vessel-tab').forEach(b => {
+      const n = state.vessels[b.dataset.v] ? state.vessels[b.dataset.v].items.length : 0;
+      b.classList.toggle('on', b.dataset.v === v);
+      b.classList.toggle('has', n > 0);
+      const d = b.querySelector('.dot'); if (d) d.textContent = n > 0 ? String(n) : '';   // v4：品項數徽章
+    });
+    $('#vessel-view .vv-emoji').textContent = V.emoji;
+    $('#vessel-view .vv-name').textContent = V.name;
+    $('#vessel-view .vv-sum').textContent = items.length + ' 項・' + liquidTotal(items) + ' ml';
+    // v6：單行摘要（前兩項＋「等 N 項」），CSS 以 … 收尾；完整清單看右側面板
+    const labels = items.map(i => labelOf(i.ing, i.qty));
+    const vvItems = $('#vessel-view .vv-items');
+    vvItems.textContent = labels.length <= 2 ? labels.join('、') : labels.slice(0, 2).join('、') + ' 等 ' + labels.length + ' 項';
+    vvItems.title = labels.join('、');
+    const hint = $('#vessel-view .vv-hint');
+    hint.hidden = items.length > 0;
+    hint.textContent = v === 'c' ? '成品杯：杯底料直接加在這裡' : '拖量杯到這裡倒入' + V.name;
+    const va = $('#vessel-view .vv-action'); va.hidden = !(action && action.v === v); va.textContent = action && action.v === v ? ACTION_DEF[action.code].emoji : '';
+    $('#vessel-view').classList.toggle('busy', !!action);
+    const busy = !!state.busy;
+    // 倒入列：紙杯分頁時隱藏「倒入紙杯」（改顯示一句說明）；「倒入雪克杯」在萃茶機與紙杯分頁顯示（v5：放錯紙杯可倒回雪克杯）
+    const toShaker = v === 't' || v === 'c';
+    $('#pour-to-cup').hidden = v === 'c';
+    $('#pour-to-cup').disabled = busy || v === 'c' || !items.length;
+    $('#pour-to-cup').textContent = '⬇ ' + V.name + ' 倒入紙杯';
+    $('#pour-to-shaker').hidden = !toShaker;
+    $('#pour-to-shaker').disabled = busy || !toShaker || !items.length;
+    const note = $('#pour-note'); if (note) note.hidden = v !== 'c';
+    $('#ice-vessel').textContent = V.name;
+  }
+  function renderIce() {
+    const pct = icePct(state.active);
+    $('#ice-pct').textContent = pct + '%';
+    $('#ice-panel .ice-cup .ice').style.height = pct + '%';
+    $$('.ice-preset').forEach(b => b.classList.toggle('on', Number(b.dataset.pct) === pct));
+  }
+  function renderMeasure() {
+    const m = state.measure;
+    $('#measure-ml').textContent = String(m.ml);
+    $('#measure-src').textContent = m.src ? ING[m.src].name : '拖到液體上';
+    const liq = $('#measure .liquid');
+    liq.style.height = (m.ml / 500 * 100) + '%';
+    liq.style.background = m.src ? ING[m.src].color : 'var(--ice)';
+    $$('.ing[data-kind=liquid]').forEach(el => el.classList.toggle('mounted', el.dataset.ing === m.src));
+  }
+  function renderPanel() {
+    const c = cur();
+    // v4 訂單卡：第一行飲料名、第二行 chips；小字 系列・耐心
+    const ot = $('#order-title');
+    ot.innerHTML = c ? '<span class="o-name">' + esc(c.recipe.name) + '</span><div class="chips">' + orderChips(c) + '</div>' : '<span class="o-none">尚未接單</span>';
+    $('#order-hint').textContent = c ? c.recipe.cat + '・耐心 ' + c.patienceMax + 's' : (state.orders.length ? '點櫃台客人接單' : '等待客人上門…');
+    const ul = $('#cup-list');
+    const cup = state.cup;
+    // v4 依容器分組：紙杯永遠最上；空的 s/b/t 不顯示；項目「名稱 ｜ 數量」（文字格式仍為「綠茶 350ml」）
+    const row = (cls, i) => '<li class="' + cls + '"><span>' + esc(nameOf(i.ing)) + '</span><span class="q">' + esc(fmtQty(i.ing, i.qty)) + '</span></li>';
+    const head = v => '<li class="vhead">' + VESSELS[v].emoji + ' ' + esc(VESSELS[v].name) + '：</li>';
+    const rows = [];
+    const others = ['s', 'b', 't'].filter(v => state.vessels[v].items.length);
+    if (cup.items.length || others.length) {
+      rows.push(head('c'));
+      if (cup.items.length) cup.items.forEach(i => rows.push(row('item', i)));
+      else rows.push('<li class="none">尚未倒入（做完按「倒入紙杯」）</li>');
+      others.forEach(v => { rows.push(head(v)); state.vessels[v].items.forEach(i => rows.push(row('vitem', i))); });
+    }
+    if (cup.actions.length) rows.push('<li class="act">已做：' + cup.actions.map(a => '<span class="chip">' + esc(ACTIONS[a] || a) + '</span>').join('') + '</li>');
+    if (cup.finish && cup.finish !== 'none') rows.push('<li class="fin">✔ 收尾：' + esc(FINISH[cup.finish]) + '</li>');
+    ul.innerHTML = rows.length ? rows.join('') : '<li class="empty">工作杯是空的</li>';
+    $$('#finish-panel .fin').forEach(b => b.classList.toggle('on', b.dataset.fin === (cup.finish || 'none')));
+  }
+  // 設備按鈕依 active 容器 disabled（容器不支援或前置不成立）
+  // v6：七顆設備一律可見（使用者反映「沒有蒸汽機」）；不適用於目前容器 → .na 變淡＋disabled＋title 提示切換容器
+  function renderButtons() {
+    const busy = !!state.busy, cup = state.cup, v = state.active;
+    Object.keys(ACTION_DEF).forEach(code => {
+      const b = $('#btn-' + code); if (!b) return;
+      const okV = VESSELS[v].actions.includes(code);
+      const sec = (ACTION_DEF[code].ms / 1000).toFixed(1) + 's';
+      const where = actionVessels(code).map(vName).join('／');
+      b.hidden = false;
+      b.classList.toggle('na', !okV);
+      b.disabled = busy || !canDo(code, v);
+      const tag = b.querySelector('.av'); if (tag) tag.textContent = where;
+      b.title = !okV ? ACTIONS[code] + '：請切換到 ' + where + '（目前：' + vName(v) + '）'
+        : (!ACTION_DEF[code].pre(state.vessels[v]) ? vName(v) + '：' + ACTION_DEF[code].why + '（需時 ' + sec + '）' : ACTIONS[code] + '（' + vName(v) + '・需時 ' + sec + '）');
+    });
+    $('#brew-panel').hidden = false;   // 熱水快捷一律可見（按下會自動切到萃茶機）
+    $$('.brew-water').forEach(b => { b.disabled = busy; });
+    ['#ice-fill', '#ice-p5', '#ice-m5', '#ice-clear'].forEach(s => { const b = $(s); if (b) b.disabled = busy; });
+    $$('.ice-preset').forEach(b => { b.disabled = busy; });
+    $$('.vessel-tab').forEach(b => { b.disabled = busy; });
+    const empty = allEmpty();
+    $('#btn-serve').disabled = busy || !cup.items.length || !cur();
+    $('#btn-undo').disabled = busy || (empty && !cup.actions.length);
+    $('#btn-reset-cup').disabled = busy || (empty && !cup.actions.length && cup.finish === 'none');
+  }
+  function render() {
+    renderHud(); renderCounter(); renderQueue(); renderCup(); renderVessel(); renderMeasure(); renderPanel(); renderButtons();
+    if (isOpen('modal-recipes')) renderRecipeList(true);
+  }
+
+  // ===== 主循環 =====
+  let lastTick = performance.now();
+  function tick() {
+    const now = performance.now();
+    const dt = Math.max(0, Math.min(10, (now - lastTick) / 1000)); lastTick = now;
+    if (!state.started || state.paused) return;
+    state.orders.forEach(o => { o.elapsed += dt; });
+    if (!state.dayOver) {
+      const conf = dayConf(state.day);
+      spawnTimer += dt;
+      if (spawnTimer >= conf.interval && state.spawned < conf.customers && state.orders.length < conf.maxOnCounter) spawnCustomer();
+    }
+    if (action) {
+      action.t += dt * 1000;
+      const pct = Math.min(100, action.t / action.ms * 100);
+      $('#action-progress .bar').style.width = pct + '%';
+      const fig = $('#vessel-view .vv-fig'); if (fig) fig.style.setProperty('--p', pct.toFixed(1));   // v4 容器圖上的進度環
+      if (action.t >= action.ms) finishAction();
+    }
+    updatePatience();
+  }
+  setInterval(tick, 50);
+
+  // ===== 事件綁定 =====
+  function bind() {
+    $('#btn-recipes').addEventListener('click', openRecipes);
+    $('#btn-recipes-dock').addEventListener('click', openRecipes);   // v5 手機版底部送出列的配方表快捷鍵
+    $('#btn-recipes-close').addEventListener('click', closeRecipes);
+    $('#rmode-list').addEventListener('click', () => { setRecipeMode('list'); GameAudio.play('tab'); });
+    $('#rmode-memo').addEventListener('click', () => { setRecipeMode('memo'); GameAudio.play('tab'); });
+    $('#recipe-search').addEventListener('input', e => { rquery = e.target.value.trim().toLowerCase(); renderRecipeList(); });
+    $('#btn-pause').addEventListener('click', togglePause);
+    $('#pause-overlay').addEventListener('click', togglePause);
+    $('#btn-start').addEventListener('click', () => startDay(pickedDay));
+    ['M', 'L'].forEach(s => $('#cup-size-' + s).addEventListener('click', () => setSize(s)));
+    $('#cup-temp-cold').addEventListener('click', () => setTemp('冰'));
+    $('#cup-temp-hot').addEventListener('click', () => setTemp('熱'));
+    $('#m-fill').addEventListener('pointerdown', startFill);
+    document.addEventListener('pointerup', stopFill);
+    document.addEventListener('pointercancel', stopFill);
+    $('#m-fill').addEventListener('pointerleave', stopFill);
+    // 冰量面板
+    $('#ice-fill').addEventListener('pointerdown', startIceFill);
+    document.addEventListener('pointerup', stopIceFill);
+    document.addEventListener('pointercancel', stopIceFill);
+    $('#ice-fill').addEventListener('pointerleave', stopIceFill);
+    // v5 觸控：按住類按鈕長按不跳系統選單
+    ['#m-fill', '#ice-fill'].forEach(s => $(s).addEventListener('contextmenu', e => e.preventDefault()));
+    $('#ice-p5').addEventListener('click', () => { if (state.busy) return; setIce(icePct() + 5); });
+    $('#ice-m5').addEventListener('click', () => { if (state.busy) return; setIce(icePct() - 5); });
+    $('#ice-clear').addEventListener('click', () => { if (state.busy) return; setIce(0); });
+    $$('.ice-preset').forEach(b => b.addEventListener('click', () => { if (state.busy) return; setIce(Number(b.dataset.pct)); }));
+    $('#m-p5').addEventListener('click', () => setMeasure(state.measure.ml + 5));
+    $('#m-p1').addEventListener('click', () => setMeasure(state.measure.ml + 1));
+    $('#m-m5').addEventListener('click', () => setMeasure(state.measure.ml - 5));
+    $('#m-m1').addEventListener('click', () => setMeasure(state.measure.ml - 1));
+    $('#m-empty').addEventListener('click', emptyMeasure);
+    $('#btn-pour').addEventListener('click', () => pour(state.active));
+    // 紙杯：點擊 → 選取紙杯；量杯有內容則順便倒入紙杯（沿用 v2）
+    $('#cup').addEventListener('click', () => { if (state.busy) return; if (state.active !== 'c') { GameAudio.play('tab'); selectVessel('c'); } if (state.measure.ml > 0) pour('c'); });
+    // 容器分頁
+    $$('.vessel-tab').forEach(b => b.addEventListener('click', () => { if (state.busy) { toast('動作進行中'); return; } GameAudio.play('tab'); selectVessel(b.dataset.v); }));
+    $('#pour-to-cup').addEventListener('click', () => { const from = state.active; if (from === 'c') return; if (pourInto(from, 'c') > 0) selectVessel('c'); });
+    $('#pour-to-shaker').addEventListener('click', () => { const from = state.active; if (from !== 't' && from !== 'c') return; if (pourInto(from, 's') > 0) selectVessel('s'); });
+    Object.keys(ACTION_DEF).forEach(code => { const b = $('#btn-' + code); if (b) b.addEventListener('click', () => doAction(code)); });
+    // 萃茶機熱水：加到萃茶機並切到萃茶機
+    $$('.brew-water').forEach(b => b.addEventListener('click', () => { if (state.busy) { toast('動作進行中'); return; } if (addItem('hot', Number(b.dataset.ml), 't')) selectVessel('t'); }));
+    $('#btn-undo').addEventListener('click', undo);
+    $('#btn-reset-cup').addEventListener('click', () => resetCup(true));
+    $$('#finish-panel .fin').forEach(b => b.addEventListener('click', () => setFinish(b.dataset.fin)));
+    $('#btn-serve').addEventListener('click', () => {
+      if (!state.cup.items.length) { toast(allEmpty() ? '紙杯是空的' : '紙杯是空的——請先把容器內容「倒入紙杯」'); return; }
+      if (!cur()) { toast('請先接單'); return; }
+      serve();
+    });
+    $('#modal-result').addEventListener('click', e => { if (e.target.id === 'modal-result') hideResult(); });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (isOpen('modal-qty')) hideModal('modal-qty');
+      if (isOpen('modal-recipes')) closeRecipes();
+      if (isOpen('modal-result')) hideResult();
+      if (isOpen('modal-day-end')) hideModal('modal-day-end');
+      if (isOpen('modal-start') && state.started) hideModal('modal-start');
+    });
+    setupDrag();
+  }
+
+  // ===== 自測（純函式）=====
+  function selftest() {
+    const out = [];
+    const t = (name, cond, info) => out.push({ name, ok: !!cond, info });
+    const mk = (items, actions = [], finish = 'none', extra = {}) => Object.assign({ id: 't', name: 't', size: 'L', temp: '冰', cat: 't', items: items.map(i => Object.assign({ v: 'c' }, i)), actions, finish, steps: '', ice: 'none', iceV: null, pour: {}, sv: null, sweet: '正常', full: 't L-冰' }, extra);
+    const cupOf = (items, actions = [], finish = 'none', size = 'L', temp = '冰') => ({ size, temp, items: items.map(i => Object.assign({ v: 'c' }, i)), actions, finish });
+    const near = (a, b, e = 0.01) => Math.abs(a - b) <= e;
+    // #14 冰量 normal
+    const Rn = resolveOrder(mk([], [], 'none', { ice: 'cup', iceV: 'c' }), { iceLevel: 'normal' });
+    const sN = [85, 78, 95, 75, 70, 60].map(p => score(Rn, cupOf([{ ing: 'ice', qty: p }])).S_ing);
+    t('#14 冰量 normal', [100, 100, 100, 100, 50, 0].every((v, i) => near(sN[i], v)) && near(score(Rn, cupOf([])).S_ing, 0), sN.join(','));
+    // #15 less / light
+    const Rl = resolveOrder(mk([], [], 'none', { ice: 'cup', iceV: 'c' }), { iceLevel: 'less' }), Rg = resolveOrder(mk([], [], 'none', { ice: 'cup', iceV: 'c' }), { iceLevel: 'light' });
+    const sL = [50, 55, 60, 65].map(p => score(Rl, cupOf([{ ing: 'ice', qty: p }])).S_ing), sG = [33, 38, 43, 48].map(p => score(Rg, cupOf([{ ing: 'ice', qty: p }])).S_ing);
+    t('#15 冰量 less/light', [100, 100, 50, 0].every((v, i) => near(sL[i], v) && near(sG[i], v)), sL.join(',') + '|' + sG.join(','));
+    // #16 熱飲加冰 / 適量 / 容器路徑
+    const Rh = mk([{ ing: 'green', qty: 200 }], [], 'none', { temp: '熱' });
+    const sH = score(Rh, cupOf([{ ing: 'green', qty: 200 }, { ing: 'ice', qty: 50 }], [], 'none', 'L', '熱')).S_ing;
+    const Rq0 = mk([{ ing: 'ro', qty: -1 }]), Rz = mk([{ ing: 'sugar', qty: 0 }]);
+    t('#16 熱飲加冰/適量/無糖', near(sH, 90) && near(score(Rq0, cupOf([{ ing: 'ro', qty: 30 }])).S_ing, 100) && near(score(Rq0, cupOf([])).S_ing, 0)
+      && near(score(Rz, cupOf([])).S_ing, 100) && near(score(Rz, cupOf([{ ing: 'sugar', qty: 30 }])).S_ing, 0), sH);
+    const Ts3 = resolveOrder(mk([{ ing: 'green', qty: 200, v: 's' }, { ing: 'sugar', qty: 60, v: 's' }], ['shake'], 'topWater', { ice: 'cup', iceV: 's' }), { iceLevel: 'less' });
+    const routeCup = vs => ({ size: 'L', temp: '冰', items: [{ ing: 'green', qty: 200, v: vs[0] }, { ing: 'sugar', qty: 60, v: vs[1] }, { ing: 'ice', qty: 50, v: vs[2] }], actions: ['shake'], finish: 'topWater' });
+    const good = score(Ts3, routeCup(['s', 's', 's'])), wrong = score(Ts3, routeCup(['c', 'c', 'c'])), one = score(Ts3, routeCup(['s', 'c', 's']));
+    const merged = score(Ts3, { size: 'L', temp: '冰', items: [{ ing: 'green', qty: 200, v: 'c', vs: ['c', 's'] }, { ing: 'sugar', qty: 60, v: 's' }, { ing: 'ice', qty: 50, v: 's' }], actions: ['shake'], finish: 'topWater' });
+    t('#16 容器路徑', near(good.S_ing, 100) && near(wrong.S_ing, 70) && near(one.S_ing, 90) && near(merged.S_ing, 100) && wrong.details.some(d => /雪克杯/.test(d)) && Ts3.items.find(i => i.ing === 'ice').v === 's',
+      good.S_ing + '/' + wrong.S_ing + '/' + one.S_ing + '/' + merged.S_ing + ' ' + (wrong.details[0] || ''));
+    // #17 sv
+    const rs = RECIPES.find(r => r.name === '西瓜四季青'), rm = RECIPES.find(r => r.name === '西瓜牛奶'), rh = RECIPES.find(r => r.name === '蘋果蜂蜜綠'), rg = RECIPES.find(r => r.name === '葡萄多多');
+    const sug = (r, k) => resolveOrder(r, k == null ? {} : { sweetKey: k }).items.find(i => i.ing === (r.sv.ing)).qty;
+    t('#17 sv', sug(rm, '三分') === 40 && sug(rs, '七分') === 80 && sug(rs) === 60 && sug(rh, '七分') === 40 && sug(rg, '無糖') === 0 && sug(rg, '全糖') === 30,
+      [sug(rm, '三分'), sug(rs, '七分'), sug(rs), sug(rh, '七分'), sug(rg, '無糖'), sug(rg, '全糖')].join(','));
+    // #18 容差
+    const R350 = mk([{ ing: 'green', qty: 350 }]);
+    const s18 = [350, 320, 385, 420, 455].map(q => score(R350, cupOf([{ ing: 'green', qty: q }])).S_ing);
+    const s18b = [40, 50].map(q => score(mk([{ ing: 'lemon', qty: 30 }]), cupOf([{ ing: 'lemon', qty: q }])).S_ing);
+    const s18c = [5, 6, 7].map(q => score(mk([{ ing: 'plum', qty: 5 }]), cupOf([{ ing: 'plum', qty: q }])).S_ing);
+    t('#18 容差', [100, 100, 100, 50, 0].every((v, i) => near(s18[i], v)) && near(s18b[0], 100) && near(s18b[1], 50) && near(s18c[0], 100) && near(s18c[1], 100) && near(s18c[2], 50), s18.join(',') + '|' + s18b.join(',') + '|' + s18c.join(','));
+    // #19 勺數
+    const s19 = [2, 1, 3, 4].map(q => score(mk([{ ing: 'pearl', qty: 2 }]), cupOf([{ ing: 'pearl', qty: q }])).S_ing);
+    t('#19 勺數', [100, 50, 50, 0].every((v, i) => near(s19[i], v)), s19.join(','));
+    // #20 製程
+    const Ra = mk([{ ing: 'green', qty: 350 }], ['steam', 'stir']);
+    const a = [score(Ra, cupOf([{ ing: 'green', qty: 350 }], ['steam', 'stir'])).S_act, score(Ra, cupOf([{ ing: 'green', qty: 350 }], ['steam'])).S_act, score(Ra, cupOf([{ ing: 'green', qty: 350 }], ['steam', 'stir', 'shake'])).S_act, score(R350, cupOf([{ ing: 'green', qty: 350 }], ['blend'])).S_act];
+    t('#20 製程', near(a[0], 100) && near(a[1], 50) && near(a[2], 80) && near(a[3], 75), a.join(','));
+    // #21 收尾
+    const Rf = mk([{ ing: 'green', qty: 350 }], [], 'topWater');
+    const f = x => score(Rf, cupOf([{ ing: 'green', qty: 350 }], [], x)).S_fin;
+    t('#21 收尾', near(f('topWater'), 100) && near(f('topTea'), 0) && near(f('none'), 0) && near(score(R350, cupOf([{ ing: 'green', qty: 350 }], [], 'none')).S_fin, 100), [f('topWater'), f('topTea'), f('none')].join(','));
+    // #22 權重 / 時間 / 耐心 / 星等
+    const Rw = mk([{ ing: 'green', qty: 350 }], ['shake'], 'topWater');
+    const w = [score(Rw, cupOf([{ ing: 'green', qty: 350 }], [], 'topTea')).Q, score(Rw, cupOf([], ['shake'], 'topWater')).Q, score(Rw, cupOf([{ ing: 'green', qty: 350 }], ['shake'], 'topWater')).Q];
+    const tf = [[60, 100, 1], [100, 100, 1], [150, 100, 0.6], [200, 100, 0.2], [500, 100, 0.2]].every(([e, m, x]) => near(timeFactor(e, m), x, 0.001));
+    const pats = RECIPES.map(patienceFor);
+    const st = [[90, 5], [89, 4], [75, 4], [74, 3], [60, 3], [59, 2], [40, 2], [39, 1]].every(([s, x]) => starsFor(s) === x);
+    t('#22 權重/時間/耐心/星等', near(w[0], 60) && near(w[1], 40) && near(w[2], 100) && tf && pats.every(p => p >= 60 && p <= 150) && st, w.join(',') + ' pat ' + Math.min(...pats) + '~' + Math.max(...pats));
+    // #3 pool
+    t('#3 pool', [1, 2, 3, 4, 5].every(d => getPool(d).length === RECIPES.length) && new Set(getPool(1).map(r => r.cat)).size === 16, [1, 2, 3, 4].map(d => getPool(d).length).join('/'));
+    // bubbleText
+    const bt = bubbleText({ recipe: RECIPES.find(r => r.name === '林華泰四季青' && r.size === 'L'), iceLevel: 'less', sweetKey: '正常' });
+    const bh = bubbleText({ recipe: RECIPES.find(r => r.name === '熟成奶茶' && r.temp === '熱'), iceLevel: null, sweetKey: '正常' });
+    t('bubbleText', bt === '林華泰四季青 L・少冰・正常' && bh === '熟成奶茶 M熱・正常', bt + ' / ' + bh);
+    const fails = out.filter(x => !x.ok);
+    console.log('[selftest]', fails.length ? 'FAIL ' + fails.length : 'ALL PASS', out.length + ' cases', fails.map(x => x.name + ' ' + x.info).join(' | '));
+    return out;
+  }
+
+  // ===== 初始化 =====
+  buildBench(); buildDayPicker(); bind(); refillDeck(); render();
+  selftest();
+
+  window.game = {
+    state, RECIPES, ING, ACTIONS, FINISH, ICE_LEVELS, DAY_CONFIG,
+    serve, addItem, doAction, setFinish, score, forceNextRecipe, spawnCustomer, getPool,
+    timeFactor, patienceFor, starsFor, moneyFor, mountMeasure, setMeasure, emptyMeasure, pour, acceptOrder, startDay, render,
+    undo, resetCup, setSize, setTemp, togglePause, openRecipes, closeRecipes, selftest, kindOf, fmtQty,
+    // v2
+    setIce, resolveOrder, bubbleText, getDeck, drawCounts, resetDraws, refillDeck, itemScore,
+    // v3 容器
+    VESSELS, selectVessel, pourInto,
+  };
+})();
+</script>
+</body>
+</html>

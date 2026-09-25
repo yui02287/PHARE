@@ -1,0 +1,7 @@
+# 本機備份與工具暫存，不上傳
+.backup/
+.claude/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
