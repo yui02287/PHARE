@@ -272,21 +272,27 @@
   .box h2{margin:0 0 12px;font-size:1.25rem;font-family:var(--font-serif);font-weight:600;letter-spacing:.04em;color:var(--ink)}
   .box .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
   .box .actions button{min-height:2.5rem;padding:0 1.2rem;font-size:.95rem;font-weight:700}
-  /* 開始畫面：品牌藍滿版底＋中央白色襯線字標，白卡放 Day 卡與說明 */
+  /* 開始畫面：品牌藍滿版底＋中央白色襯線字標，白卡放練習系列選擇與說明 */
   #modal-start{background:var(--brand);flex-direction:column;gap:18px}
-  #modal-start .box{text-align:center;flex:0 1 auto}
+  #modal-start .box{text-align:center;flex:0 1 auto;width:min(760px,100%);max-width:760px}
   #modal-start .logo{display:flex;flex-direction:column;align-items:center;gap:.35em;color:#fff;font-family:var(--font-serif);font-weight:500;line-height:1;margin-bottom:0;flex:none}
   #modal-start .logo .logo-zh{font-size:3.2rem;letter-spacing:.18em;text-indent:.18em}
   #modal-start .logo .logo-en{font-size:1.05rem;letter-spacing:.24em;text-indent:.24em;text-transform:uppercase;opacity:.92}
   #modal-start .logo .logo-rule{width:36px;height:1px;background:rgba(255,255,255,.7);margin:.2em 0}
   #modal-start .box h2{font-size:1.15rem;margin-bottom:4px}
   #modal-start .tag{color:var(--muted);font-size:.85rem}
-  #modal-start .days{display:flex;gap:8px;justify-content:center;margin:16px 0}
-  .day-btn{flex:1 1 0;min-height:72px;font-size:.95rem;font-weight:700;padding:6px 4px;flex-direction:column;gap:2px;white-space:normal}
-  .day-btn small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);line-height:1.3}
-  .day-btn.on{background:var(--brand);color:#fff;border-color:var(--brand)}
-  .day-btn.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
-  .day-btn.on small{color:rgba(255,255,255,.9)}
+  /* v7 練習系列選擇：17 顆（全部系列＋16 系列），多選；選中＝粉霧藍底白字 */
+  #modal-start .pp-cap{margin:16px 0 8px;font-size:.85rem;font-weight:700;color:var(--ink);text-align:left}
+  #practice-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+  .cat-btn{min-height:50px;padding:4px 6px;flex-direction:column;gap:1px;white-space:normal;font-size:.85rem;font-weight:700;line-height:1.25;box-shadow:none}
+  .cat-btn small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);line-height:1.2}
+  .cat-btn[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .cat-btn[aria-pressed="true"]:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+  .cat-btn[aria-pressed="true"] small{color:rgba(255,255,255,.9)}
+  .cat-btn[data-cat="all"]{font-family:var(--font-serif);letter-spacing:.04em}
+  #practice-summary{margin:8px 0 14px;font-size:.85rem;color:var(--muted);text-align:left;line-height:1.5;min-height:1.5em}
+  #practice-summary b{color:var(--ink)}
+  #practice-summary .warn{color:var(--bad);font-weight:700}
   .how3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:left}
   .how3 .step{background:var(--brand-tint);border-radius:12px;padding:12px;font-size:.85rem;line-height:1.5;color:var(--ink)}
   .how3 .step .ic{font-size:1.6rem;line-height:1;margin-bottom:6px}
@@ -296,37 +302,9 @@
   #modal-recipes .rhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   #recipe-search{flex:1;min-width:160px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);font-size:.9rem;font-family:inherit}
   .rtabs{display:flex;gap:4px;flex-wrap:wrap;margin:10px 0}
-  .rtabs[hidden],#recipe-list[hidden],#recipe-search[hidden],#memo-panel[hidden]{display:none}
   .rtab{font-size:.78rem;min-height:1.7rem;padding:0 .6rem;border-radius:999px}
   .rtab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
   .rtab.on:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
-  /* 速記法分頁 */
-  .rmode{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-  .rmode button{border:0;border-radius:0;background:transparent;padding:6px 12px;font-size:.85rem;font-weight:700;color:var(--muted)}
-  .rmode button.on{background:var(--brand);color:#fff}
-  .rmode button.on:hover{background:var(--brand-dark)}
-  #memo-panel{overflow-y:auto;flex:1 1 0;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:6px 18px 18px;font-size:.9rem;line-height:1.6}
-  #memo-panel .m-h{font-size:1.02rem;margin:16px 0 6px;color:var(--ink);border-bottom:2px solid var(--brand);padding-bottom:4px;font-family:var(--font-serif);font-weight:600;letter-spacing:.04em}
-  #memo-panel .m-t{border-collapse:collapse;width:100%;font-size:.85rem;margin:6px 0 8px}
-  #memo-panel .m-t th,#memo-panel .m-t td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
-  #memo-panel .m-t th{background:var(--brand-tint);font-size:.78rem;color:var(--muted)}
-  #memo-panel .m-t td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
-  #memo-panel .m-motto{font-weight:700;border-left:4px solid var(--brand);background:var(--brand-tint);color:var(--ink);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0;font-family:var(--font-serif);letter-spacing:.04em}
-  #memo-panel .m-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
-  #memo-panel .m-rule{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--card)}
-  #memo-panel .m-rule>b{display:block;margin-bottom:2px}
-  #memo-panel .m-ex{font-size:.8rem;color:var(--muted);margin-top:4px}
-  #memo-panel .m-chip{display:inline-block;font-size:.74rem;padding:0 7px;border-radius:999px;background:var(--brand-tint);color:var(--ink);font-weight:700;margin:1px 4px 1px 0}
-  #memo-panel .m-chip.warn{background:var(--brand-dark);color:#fff}
-  #memo-panel .m-chip.num{background:var(--brand-soft);color:var(--ink);font-variant-numeric:tabular-nums}
-  #memo-panel .m-tpl{background:var(--brand-tint);border:1px dashed var(--brand-soft);border-radius:8px;padding:6px 10px;margin:4px 0 6px}
-  #memo-panel .fam{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;background:var(--card);scroll-margin-top:52px}
-  #memo-panel .fam.hl{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);background:var(--brand-tint)}
-  #memo-panel .fam h4{margin:0 0 4px;font-size:.98rem;font-family:var(--font-serif);font-weight:600;letter-spacing:.03em}
-  #memo-panel .fam h4 small{font-weight:500;color:var(--muted);margin-left:6px;font-size:.78rem;font-family:var(--font-sans);letter-spacing:0}
-  #memo-panel ul{margin:4px 0;padding-left:18px}
-  #memo-panel li{margin:2px 0}
-  #memo-panel .memo-now{position:sticky;top:0;z-index:1;background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;margin:8px 0 4px}
   #modal-recipes .box>#recipe-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1 1 0;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
   .recipe-row{padding:0 12px;border-bottom:1px solid var(--line);cursor:pointer}
   .recipe-row:hover{background:var(--bg)}
@@ -573,24 +551,35 @@
     #modal-start{gap:12px}
     #modal-start .logo .logo-zh{font-size:2.4rem}
     #modal-start .logo .logo-en{font-size:.9rem}
-    #modal-start .days{flex-wrap:wrap;margin:12px 0}
-    .day-btn{flex:1 1 56px;min-width:56px;min-height:60px}
+    #modal-start .pp-cap{margin:12px 0 6px}
+    #practice-picker{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:5px}
+    .cat-btn{min-height:44px;padding:3px 4px;font-size:.8rem}
+    .cat-btn small{font-size:.66rem}
+    #practice-summary{margin:6px 0 4px;font-size:.8rem}
+    /* 手機：開始鍵緊接在系列選擇後面，說明放最下面（box 內部捲動） */
+    #modal-start .box>.actions{order:1;margin-top:8px}
+    #modal-start .box>.how3{order:2;margin-top:14px}
+    #modal-start .box>.how-line{order:3}
     .how3{grid-template-columns:minmax(0,1fr);gap:8px}
     .how3 .step{padding:10px 12px}
     /* 配方表 */
     #modal-recipes .box{height:min(92vh,100%)}
     #modal-recipes .rhead{gap:6px}
     #recipe-search{font-size:16px;min-width:0;flex:1 1 140px;min-height:40px}
-    .rmode button{min-height:40px}
     #btn-recipes-close{min-height:40px}
     .rtabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin:8px 0;padding-bottom:2px;flex:none}
     .rtab{flex:none;min-height:36px}
-    #memo-panel{padding:6px 12px 12px}
-    #memo-panel .m-t td.n{white-space:normal}
-    #memo-panel .m-rules{grid-template-columns:minmax(0,1fr)}
     /* 數量選擇器 */
     .qty-steps{flex-wrap:wrap}
     .qty-steps button,.qty-presets button{min-height:44px}
+    /* HUD 練習範圍：過長用省略號（textContent 仍是完整文字） */
+    #hud #hud-day{display:inline-block;max-width:7.5em;line-height:40px}
+  }
+  @media (max-width:820px) and (max-height:700px){
+    #modal-start{gap:8px}
+    #modal-start .logo .logo-zh{font-size:1.9rem}
+    #modal-start .logo .logo-en{font-size:.8rem}
+    #modal-start .box h2{font-size:1.05rem}
   }
   /* 橫拿的手機（很矮的觸控橫向螢幕）：請直拿 */
   @media (orientation:landscape) and (max-height:500px) and (pointer:coarse){
@@ -607,8 +596,8 @@
   <!-- A. HUD -->
   <header id="hud">
     <span class="brand"><span class="logo-zh">樂法</span><span class="logo-en">Le Phare</span></span>
-    <span class="stat" id="hud-day">Day 1</span>
-    <span class="stat" id="hud-cust">客人 0/8</span>
+    <span class="stat" id="hud-day">全部系列</span>
+    <span class="stat" id="hud-cust">客人 0/10</span>
     <span class="stat" id="hud-money">$ 0</span>
     <span class="stat" id="hud-star">★ -</span>
     <span class="spacer"></span>
@@ -754,15 +743,17 @@
     <div class="logo"><span class="logo-zh">樂法</span><span class="logo-rule"></span><span class="logo-en">Le Phare</span></div>
     <div class="box">
       <h2>飲料店經營遊戲</h2>
-      <div class="tag">樂法斗六店 配方表 ・ 108 款飲料 ・ 16 系列</div>
-      <div class="days" id="day-picker"></div>
+      <div class="tag">樂法斗六店 配方表 ・ 108 款飲料 ・ 16 系列 ・ 每輪 10 杯</div>
+      <div class="pp-cap">選擇要練習的系列（可多選）</div>
+      <div id="practice-picker" role="group" aria-label="練習系列"></div>
+      <div id="practice-summary" aria-live="polite"></div>
       <div class="how3">
         <div class="step"><div class="ic">🙋</div><b>1. 接單</b>點櫃台客人接單。<br>泡泡寫著杯型、冰量、甜度。</div>
         <div class="step"><div class="ic">🧪</div><b>2. 製作</b>素材放進正確容器，量杯拖到液體上裝填。<br>做完動作按「倒入紙杯」。</div>
         <div class="step"><div class="ic">🛎️</div><b>3. 送出</b>選收尾後按「送出」。<br>素材 60%・製程 25%・收尾 15%，超時打折。</div>
       </div>
-      <div class="how-line"><b>容器：</b>杯底料→紙杯；要搖、要加熱→雪克杯；打冰沙→果汁機；茶包＋熱水→萃茶機。放錯容器每項扣 10 分；看不懂配方請按「配方表」（查看時遊戲會暫停）。</div>
-      <div class="actions" style="justify-content:center"><button id="btn-start" class="primary">開店！</button></div>
+      <div class="how-line"><b>容器（一開始是紙杯）：</b>杯底料→紙杯；要搖、要加熱→雪克杯；打冰沙→果汁機；茶包＋熱水→萃茶機。放錯容器每項扣 10 分；看不懂配方請按「配方表」（查看時遊戲會暫停）。</div>
+      <div class="actions" style="justify-content:center"><button id="btn-start" class="primary">開始練習</button></div>
     </div>
   </div>
 
@@ -771,132 +762,13 @@
       <div class="rhead">
         <h2 style="margin:0">📖 配方表</h2>
         <span class="timer-note">⏸ 已暫停</span>
-        <div class="rmode"><button id="rmode-list" class="on">配方列表</button><button id="rmode-memo">速記法</button></div>
         <input id="recipe-search" placeholder="搜尋飲料名稱…">
         <button id="btn-recipes-close">關閉</button>
       </div>
       <div class="rtabs" id="rtabs"></div>
       <ul id="recipe-list"></ul>
-      <div id="memo-panel" hidden></div>
     </div>
   </div>
-
-  <!-- 速記法內容：規則已用程式對過全部 108 款；每個家族卡的 data-fam 供「目前訂單」高亮 -->
-  <template id="memo-tpl">
-    <div class="memo-now" id="memo-now" hidden></div>
-    <h3 class="m-h">1 · 骨架：4 個容器、3 種收尾、2 個糖基準</h3>
-    <table class="m-t">
-      <tr><th>容器</th><th>放什麼</th><th>做什麼</th></tr>
-      <tr><td><b>紙杯（杯底）</b></td><td>果汁、果泥、多多、冷牛奶、凍、珍珠、椰果、仙草、梅粉、冰淇淋、優酪乳、榨蘋果</td><td>直接調的在這裡攪拌</td></tr>
-      <tr><td><b>雪克杯</b></td><td>茶＋糖＋冰（＋奶精、蜂蜜）</td><td>搖茶／蒸汽機加熱</td></tr>
-      <tr><td><b>果汁機</b></td><td>果丁＋果醬＋糖＋水</td><td>打到無塊</td></tr>
-      <tr><td><b>萃茶機</b></td><td>茶包＋熱水</td><td>鍵 3 純茶／鍵 5 歐蕾</td></tr>
-    </table>
-    <div class="m-motto">料在紙杯，茶在雪克，丁在果汁機，包在萃茶機。</div>
-    <div class="m-rules">
-      <div class="m-rule"><b>收尾只有三種</b><span class="m-chip">補茶</span>只有歐蕾（冷縮茶＋牛奶九款）<br><span class="m-chip warn">不補</span>果汁機加了冰塊的四款：冰淇淋芒果、芒果楊枝、草莓奶昔、藍莓奶昔<br><span class="m-chip">補水</span>其他全部</div>
-      <div class="m-rule"><b>糖看誰是主角</b>茶當主角 → 大杯冰 <span class="m-chip num">60</span> 中杯熱 <span class="m-chip num">50</span><br>水果當主角 → <span class="m-chip num">40</span>（老饕蘋果中杯 30）<div class="m-ex">例外三家族：歐蕾 L50／M40；有蜂蜜就 15；奶昔固定 30。</div></div>
-    </div>
-
-    <h3 class="m-h">2 · 命名解碼</h3>
-    <table class="m-t">
-      <tr><th>名字裡有</th><th>就是</th><th>名字裡有</th><th>就是</th></tr>
-      <tr><td>鮮紅／紅茶</td><td>紅茶</td><td>舞動／舞凍</td><td>綠茶凍 2 勺</td></tr>
-      <tr><td>鮮綠／綠</td><td>綠茶</td><td>酪酪</td><td>優酪乳 100 ＋ 綠茶凍 2 勺</td></tr>
-      <tr><td>青／四季青</td><td>青茶（四季青）</td><td>鮮奶（含椰果）</td><td>牛奶 150 ＋ 椰果 1 勺</td></tr>
-      <tr><td>優利卡</td><td>檸檬汁</td><td>多多</td><td>多多 1 罐</td></tr>
-      <tr><td>那堤</td><td>牛奶，沒有茶</td><td>波／椰</td><td>珍珠／椰果</td></tr>
-      <tr><td>歐蕾</td><td>牛奶＋茶（冷縮茶或茶包）</td><td>梅</td><td>梅子粉</td></tr>
-      <tr><td>橙柚</td><td>柳橙 100 ＋ 葡萄柚 3 勺</td><td>奶昔</td><td>果汁機＋牛奶＋冰淇淋＋冰塊，不補水</td></tr>
-    </table>
-
-    <h3 class="m-h">3 · 鐵律（108 款無例外）</h3>
-    <div class="m-rules">
-      <div class="m-rule"><b>奶精只有奶茶和珍奶有</b>奶茶大杯 <span class="m-chip num">5 勺</span>，其餘（奶茶中熱、珍奶大中）都 <span class="m-chip num">4 勺</span><div class="m-ex">口訣：奶茶大杯五，其餘都是四。</div></div>
-      <div class="m-rule"><b>珍奶珍珠 2 勺，放紙杯</b>珍奶的茶比奶茶少 50，因為珍珠佔了位子。</div>
-      <div class="m-rule"><b>所有蘋果都要榨蘋果</b>蘋果系列 1 顆；老饕蘋果大杯 3、中杯 2、熱 2。</div>
-      <div class="m-rule"><b>冷飲：雪克杯裡有茶就搖茶</b><div class="m-ex">老饕蘋果不搖（茶直接放紙杯）；果汁機類不搖。</div></div>
-      <div class="m-rule"><b>熱飲都用蒸汽機</b><div class="m-ex">只有兩種本來就熱的不用：台灣茶純茶（茶包泡熱水）、仙草蜂蜜（蜂蜜沖熱水）。</div></div>
-      <div class="m-rule"><b>奶茶／珍奶連冰的都先蒸汽加熱</b>先溶奶精，再加糖、冰搖。</div>
-      <div class="m-rule"><b>中杯熱 ＝ 大杯冰的糖減 10</b>60→50、50→40、40→30<div class="m-ex">蜂蜜類不適用（蔗糖固定 15）。</div></div>
-      <div class="m-rule"><b>固定量</b>蜜桃汁 80、冰淇淋 100 g、優酪乳 100、凍類 2 勺、椰果 1 勺、仙草大杯 3 中杯 2。</div>
-    </div>
-
-    <h3 class="m-h">4 · 茶量：三個數字</h3>
-    <table class="m-t">
-      <tr><th>情境</th><th>茶量</th></tr>
-      <tr><td>純茶（蜂蜜四季青也算）</td><td class="n">200</td></tr>
-      <tr><td>奶茶</td><td class="n">L 250／M 200</td></tr>
-      <tr><td>珍奶</td><td class="n">200</td></tr>
-      <tr><td>茶＋配料：蘋果系列、蜜桃四季青、芭樂檸檬綠、芭樂紅茶、橙柚青、柳橙鮮綠、多多綠、寒天波椰、梅子鐵觀音、仙草鐵觀音、芒果綠茶</td><td class="n"><b>150</b></td></tr>
-      <tr><td>例外</td><td class="n">西瓜四季青 200、蘋果紅茶舞凍 120</td></tr>
-      <tr><td>老饕蘋果</td><td class="n">L 100／M 60／熱 100</td></tr>
-      <tr><td>歐蕾冷縮茶（跟牛奶一樣多）</td><td class="n">L 200／M 150／熱 200</td></tr>
-    </table>
-
-    <h3 class="m-h">5 · 家族卡：同一個模板，只記差異</h3>
-    <div class="fam" data-fam="f1"><h4>純茶家族 <small>8 款 ＋ 蜂蜜四季青 2 款</small></h4>
-      <div class="m-tpl"><b>雪克杯</b> 茶 200 ＋ 糖 → 冰搖／熱蒸汽攪拌 → 補水</div>
-      <ul><li>四種茶：阿薩姆熟成紅茶、茉莉綠茶、林華泰四季青、林華泰鐵觀音。糖 L 60／M 熱 50。</li><li>蜂蜜四季青 ＝ 純茶四季青 200 ＋ 蜂蜜（L 50／M 熱 25）＋ 蔗糖 15，先攪拌溶蜂蜜再搖。</li></ul></div>
-    <div class="fam" data-fam="f2"><h4>奶茶／珍奶家族 <small>12 款：紅茶、四季青、鐵觀音 × 4</small></h4>
-      <div class="m-tpl"><b>雪克杯</b> 茶 → 蒸汽加熱 → 奶精攪拌 → 糖（＋冰搖）→ 補水</div>
-      <ul><li>奶茶：L 茶 250 ＋ 奶精 5 ＋ 糖 60；M 熱 茶 200 ＋ 奶精 4 ＋ 糖 50。</li><li>珍奶：紙杯先放珍珠 2 勺；茶 200 ＋ 奶精 4；糖 L 60／M 熱 50。</li><li>三種茶完全同模板，只換茶。</li></ul></div>
-    <div class="fam" data-fam="f3"><h4>歐蕾 A：冷縮茶歐蕾 <small>9 款：紅茶、四季青、鐵觀音 × 3</small></h4>
-      <div class="m-tpl"><b>紙杯</b> 冷縮茶 ＝ 牛奶 ＋ 糖 ＋ 冰 → 攪拌 → <b>補茶</b>（唯一補茶的家族）</div>
-      <ul><li>L 200＋200 糖 50；M 150＋150 糖 40。</li><li>M 熱：雪克杯 冷縮茶 200 ＋ 牛奶 150 ＋ 糖 40 → 攪拌 → 蒸汽 → 倒紙杯 → 補茶。鐵觀音熱的牛奶是 200（唯一例外）。</li></ul></div>
-    <div class="fam" data-fam="f4"><h4>歐蕾 B：台灣茶歐蕾 <small>8 款：琥珀高山青、大葉烏龍、東方美人、紅韻紅茶 × 2</small></h4>
-      <div class="m-tpl"><b>萃茶機</b> 茶包 1 ＋ 熱水 150 → 鍵 5；牛奶 150；糖 40；補水</div>
-      <ul><li>冰：紙杯先放牛奶 150；茶萃好連茶包倒進雪克杯，加糖 40 加冰搖，倒紙杯。</li><li>熱：蒸汽機把牛奶 150 打熱倒紙杯；茶連茶包倒進紙杯，加糖 40。</li><li>記法：台灣茶歐蕾 ＝「150／150／鍵 5／糖 40」。</li></ul></div>
-    <div class="fam" data-fam="f5"><h4>台灣茶純茶 <small>8 款</small></h4>
-      <div class="m-tpl"><b>萃茶機</b> 茶包 1 ＋ 熱水 350 → 鍵 3</div>
-      <ul><li>冰：雪克杯放冰，倒入茶＋糖 60，搖，補水。</li><li>熱：直接倒紙杯，加糖 50 攪拌，補水，不用蒸汽機。</li><li>記法：純茶「350／鍵 3」，歐蕾「150／鍵 5」。</li></ul></div>
-    <div class="fam" data-fam="f6"><h4>老饕蘋果家族 <small>17 款</small></h4>
-      <div class="m-tpl"><b>全部在紙杯</b>：底料 → 糖 → 冰 → 榨蘋果 → 補水。不搖茶。</div>
-      <ul><li>蘋果顆數：L 3、M 2、熱 2。糖：L 40、M 30、熱 30；那堤（牛奶）特別少：15。</li></ul>
-      <table class="m-t"><tr><th>名字</th><th>底料</th><th>L</th><th>M</th></tr>
-        <tr><td>鮮紅</td><td>紅茶</td><td class="n">100</td><td class="n">60</td></tr><tr><td>鮮綠</td><td>綠茶</td><td class="n">100</td><td class="n">60</td></tr>
-        <tr><td>優利卡</td><td>檸檬汁</td><td class="n">30</td><td class="n">15</td></tr><tr><td>柳橙</td><td>柳橙汁</td><td class="n">60</td><td class="n">40</td></tr>
-        <tr><td>葡萄</td><td>葡萄汁</td><td class="n">30</td><td class="n">20</td></tr><tr><td>那堤</td><td>牛奶</td><td class="n">150</td><td class="n">120</td></tr></table>
-      <ul><li>只有大杯的兩款：舞動 ＝ 綠茶凍 2 勺 ＋ 綠茶 80 ＋ 蘋果 2 顆；多多 ＝ 多多 1 罐 ＋ 蘋果 2 顆（糖都 40）。</li><li>熱飲三款（鮮紅、鮮綠、優利卡）：改在雪克杯做，茶用 100、檸檬 15，糖 30，蒸汽機，倒回紙杯。</li></ul></div>
-    <div class="fam" data-fam="f7"><h4>蘋果系列 <small>4 款，都只有大杯</small></h4>
-      <div class="m-tpl"><b>紙杯</b> 放果汁或凍；<b>雪克杯</b> 茶 150 ＋ 糖 40 ＋ 冰搖倒入；榨蘋果 1 顆；補水</div>
-      <ul><li>蘋果芭樂綠：芭樂泥 100 ＋ 綠茶（這裡的芭樂泥不配芭樂醬）。</li><li>蘋果柳橙青：柳橙 100 ＋ 青茶。</li><li>蘋果紅茶舞凍：綠茶凍 2 勺 ＋ 紅茶 120。</li><li>蘋果蜂蜜綠：沒有蔗糖，綠茶 150 ＋ 蜂蜜（正常 60、七分 40），先攪拌溶蜂蜜再搖。</li></ul></div>
-    <div class="fam" data-fam="f8"><h4>果汁機家族 <small>芒果、草莓、藍莓、芭樂芒果、芒果綠茶，共 11 款</small></h4>
-      <div class="m-tpl"><b>紙杯</b> 放底料；<b>果汁機</b> 果丁 75 ＋ 果醬 ＋ 糖 40 ＋ 水 → 打到無塊 → 倒紙杯 → 補水</div>
-      <ul><li>果醬 25 是常態；<b>35 只有三款</b>：芒果鮮奶、草莓鮮奶、芒果楊枝（牛奶跟楊枝要重口味）。</li><li>底料對照：多多 → 多多 1 罐；鮮奶 → 椰果 1 勺＋牛奶 150；酪酪 → 綠茶凍 2 勺＋優酪乳 100（草莓柳橙酪酪再加柳橙 40，水 75）。</li><li>楊枝 2.0：底料 綠茶凍 2＋葡萄柚 2 勺＋優酪乳 100；果汁機加冰塊 200、水 100 → <b>不補水</b>。</li><li>冰淇淋芒果：紙杯放冰淇淋 100；果汁機加冰塊 250、水 150 → <b>不補水</b>。</li><li>芒果綠茶：果汁機裡直接放綠茶 150 代替水，沒有底料。</li><li>芭樂芒果：紙杯 芭樂泥 100＋芭樂醬 50；果汁機 芒果丁 50＋醬 25（果丁減半）。</li><li>奶昔兩款：全部丟果汁機（果料、草莓醬、糖 30 固定、牛奶 150、冰淇淋 100、冰塊 100、水 150）→ 不補水。草莓奶昔 草莓丁 50＋醬 35；藍莓奶昔 藍莓 60＋草莓醬 20。</li></ul></div>
-    <div class="fam" data-fam="f9"><h4>芭樂家族 <small>6 款</small></h4>
-      <div class="m-tpl"><b>紙杯</b> 芭樂泥 100 ＋ 芭樂醬 50 ＋ 糖 40</div>
-      <ul><li>直接調（紙杯加冰補水）：芭樂柳橙（＋柳橙 100）、芭樂梅（＋梅粉 3 g）、芭樂多多（唯一縮量：泥 75＋醬 25＋多多 1 罐）。</li><li>搖茶版（雪克杯 茶 150＋糖 40）：芭樂檸檬綠（紙杯再加檸檬 20，綠茶）、芭樂紅茶（紅茶）。</li><li>芭樂芒果 → 走果汁機家族。</li></ul></div>
-    <div class="fam" data-fam="f10"><h4>蜜桃家族 <small>4 款，蜜桃汁永遠 80</small></h4>
-      <ul><li>蜜桃四季青：紙杯蜜桃 80；雪克杯 青茶 150＋糖 40 搖。</li><li>冰淇淋蜜桃：同上，紙杯多放冰淇淋 100。</li><li>蜜桃鮮奶（含椰果）：紙杯 椰果 1＋牛奶 150＋蜜桃 80＋糖 40，不搖。</li><li>蜜桃青檸酪酪：紙杯 綠茶凍 2＋優酪乳 100＋蜜桃 80＋檸檬 5＋糖 40，不搖。</li></ul></div>
-    <div class="fam" data-fam="f11"><h4>柳橙／西瓜／多多 <small>茶當主角，糖 60</small></h4>
-      <ul><li>橙柚青 ＝ 柳橙 100 ＋ 葡萄柚 3 勺（紙杯）＋ 青茶 150（雪克杯）。熱的糖 50 用蒸汽機。梅好橙柚青 ＝ 橙柚青 ＋ 梅粉 3 g。</li><li>柳橙鮮綠 ＝ 柳橙 150 ＋ 綠茶 150。</li><li>西瓜三款克數一樣（三分 40／五分 60／七分 80），可點範圍不同：西瓜牛奶 三分～五分、建議三分；西瓜四季青、西瓜多多 五分～七分、建議五分。西瓜四季青：西瓜 160 ＋ 青茶 200（搖）；西瓜多多：多多 1 罐 ＋ 西瓜 140（攪拌）；西瓜牛奶：牛奶 150 ＋ 西瓜 200（攪拌）。</li><li>多多綠茶：多多 1 罐 ＋ 綠茶 150 搖；檸檬多多：多多 1 罐 ＋ 檸檬 25，紙杯直調。</li><li>葡萄多多（新品）：葡萄汁 50 ＋ 多多 1 罐，紙杯攪拌（葡萄醬＝葡萄汁，同一瓶；老饕蘋果葡萄用 L 30／M 20）；甜度只有 無糖 0／全糖 30，建議無糖（無糖就是不加糖）。</li></ul></div>
-    <div class="fam" data-fam="f12"><h4>配料茶：寒天波椰、梅子鐵觀音、仙草 <small>茶 150，糖 60／50</small></h4>
-      <ul><li>四季青寒天波椰：紙杯 珍珠 1、椰果 1、寒天 1；雪克杯 青茶 150。</li><li>梅子鐵觀音：紙杯 梅粉 <b>5 g</b>（芭樂梅、梅好橙柚青是 3 g）；雪克杯 鐵觀音 150。</li><li>仙草鐵觀音：紙杯 仙草 3 勺（熱 2 勺）；雪克杯 鐵觀音 150。</li><li>仙草鮮奶：紙杯 仙草 3＋牛奶 200＋糖 50（比一般少 10）；熱：仙草 2，牛奶 200 進雪克杯，糖 40。</li><li>仙草蜂蜜：紙杯 仙草 3（熱 2）；雪克杯 蜂蜜 40（熱 25）＋蔗糖 15＋適量熱水攪拌，冰的再加冰搖；熱的不用蒸汽機。</li></ul></div>
-
-    <h3 class="m-h">6 · 數字速查</h3>
-    <table class="m-t">
-      <tr><th>東西</th><th>數字</th><th>例外</th></tr>
-      <tr><td>蔗糖 茶系</td><td class="n">L 60／M 熱 50</td><td></td></tr>
-      <tr><td>蔗糖 果系</td><td class="n">40</td><td>老饕中杯 30、那堤 15、奶昔 30</td></tr>
-      <tr><td>蔗糖 歐蕾</td><td class="n">L 50／M 40</td><td>台灣茶歐蕾一律 40</td></tr>
-      <tr><td>蔗糖 有蜂蜜</td><td class="n">15</td><td>蘋果蜂蜜綠無蔗糖</td></tr>
-      <tr><td>蔗糖 西瓜</td><td class="n">三分 40／五分 60／七分 80</td><td>西瓜牛奶 三分～五分；西瓜四季青、多多 五分～七分</td></tr>
-      <tr><td>蔗糖 葡萄多多</td><td class="n">無糖 0／全糖 30</td><td>建議無糖</td></tr>
-      <tr><td>蜂蜜</td><td class="n">中熱 25</td><td>大杯：蜂蜜四季青 50、仙草蜂蜜 40、蘋果蜂蜜綠 60（七分 40）</td></tr>
-      <tr><td>奶精</td><td class="n">4 勺</td><td>奶茶大杯 5</td></tr>
-      <tr><td>熱水（萃茶機）</td><td class="n">純 350 鍵 3／歐蕾 150 鍵 5</td><td></td></tr>
-      <tr><td>牛奶</td><td class="n">150</td><td>歐蕾 L 200、仙草鮮奶 200、鐵觀音歐蕾熱 200、那堤 L150 M120</td></tr>
-      <tr><td>柳橙汁</td><td class="n">100</td><td>柳橙鮮綠 150、草莓柳橙酪酪 40、老饕 L60 M40</td></tr>
-      <tr><td>檸檬汁</td><td class="n">優利卡 L30 M15</td><td>芭樂檸檬綠 20、檸檬多多 25、蜜桃青檸 5</td></tr>
-      <tr><td>芭樂泥＋醬</td><td class="n">100＋50</td><td>芭樂多多 75＋25、蘋果芭樂綠只有泥 100</td></tr>
-      <tr><td>果丁＋果醬</td><td class="n">75＋25</td><td>醬 35：兩款鮮奶、楊枝；奶昔 50＋35；芭樂芒果 50＋25；藍莓 60＋草莓醬 20</td></tr>
-      <tr><td>果汁機 水</td><td class="n">適量</td><td>冰淇淋芒果 150、楊枝 100、草莓柳橙酪酪 75、奶昔 150</td></tr>
-      <tr><td>凍、珍珠</td><td class="n">2 勺</td><td>寒天波椰各 1</td></tr>
-      <tr><td>葡萄柚</td><td class="n">橙柚青 3 勺</td><td>楊枝 2 勺</td></tr>
-      <tr><td>梅粉</td><td class="n">3 g</td><td>梅子鐵觀音 5 g</td></tr>
-    </table>
-  </template>
 
   <div class="modal" id="modal-result"><div class="box" id="result-box"></div></div>
   <div class="modal" id="modal-day-end"><div class="box" id="dayend-box"></div></div>
@@ -1080,18 +952,15 @@
     const price = (recipe.size === 'L' ? 65 : 50) + (recipe.items.length >= 5 ? 5 : 0) + 5 * recipe.actions.length;
     return Math.round(price * STAR_MULT[stars] + (stars === 5 ? 10 : 0));
   }
-  // v5：每一天都從全部 108 款抽（16 系列全開），Day 只差客人數／間隔／櫃台上限
-  const CATS_ALL = CATEGORIES.slice();                                                          // 108 款
-  const CATS1 = CATS_ALL, CATS2 = CATS_ALL, CATS3 = CATS_ALL, CATS4 = CATS_ALL;
-  const DAY_CONFIG = {
-    1: { customers: 8, interval: 20, maxOnCounter: 2, cats: CATS_ALL },
-    2: { customers: 9, interval: 16, maxOnCounter: 3, cats: CATS_ALL },
-    3: { customers: 10, interval: 13, maxOnCounter: 4, cats: CATS_ALL },
-    4: { customers: 12, interval: 10, maxOnCounter: 5, cats: CATS_ALL },
-    5: { customers: 12, interval: 8, maxOnCounter: 5, cats: CATS_ALL },
-  };
-  function dayConf(d) { return DAY_CONFIG[clamp(Math.floor(Number(d) || 1), 1, 5)]; }
-  function getPool(day) { void dayConf(day); return RECIPES.slice(); }
+  // v7：不分天，改選要練習的飲料系列。每輪固定 10 杯，節奏約等於舊 Day 2
+  const PRACTICE = { customers: 10, interval: 16, maxOnCounter: 3 };
+  // 系列名陣列 → 依 CATEGORIES 順序、濾掉未知名稱；null／空陣列／'all'／濾完為空 → 全部 16 系列
+  function normCats(cats) {
+    if (cats == null || cats === 'all') return CATEGORIES.slice();
+    const want = new Set(Array.isArray(cats) ? cats : [cats]);
+    const out = CATEGORIES.filter(c => want.has(c));
+    return out.length ? out : CATEGORIES.slice();
+  }
   /*PURE-END*/
 
   // ===== UI 補充表 =====
@@ -1153,12 +1022,12 @@
 
   // ===== 狀態 =====
   const state = {
-    day: 1, started: false, paused: false, dayOver: false,
+    practice: { cats: CATEGORIES.slice() }, started: false, paused: false, dayOver: false,
     money: 0, served: 0, spawned: 0, starSum: 0, fiveStars: 0, slowest: 0,
     orders: [], queue: [], currentId: null,
     // v3 四容器；每筆 item = {ing, qty, v}（v = 所屬容器；倒入紙杯時保留來源、倒入其他容器時改記為目標容器）
     vessels: { c: { items: [] }, s: { items: [] }, b: { items: [] }, t: { items: [] } },
-    active: 's',   // v5：預設容器為雪克杯
+    active: 'c',
     history: [],   // [{v, ing}] 撤銷用（加入順序）
     cup: { size: 'M', temp: '冰', actions: [], finish: 'none' },
     measure: { src: null, ml: 0 },
@@ -1174,9 +1043,21 @@
   const allEmpty = () => VESSEL_KEYS.every(v => state.vessels[v].items.length === 0);
   function clearVessels() { VESSEL_KEYS.forEach(v => { state.vessels[v].items.length = 0; }); state.history.length = 0; }
   let orderSeq = 0, spawnTimer = 0, action = null, toastTimer = null;
-  let progress = { maxDay: 1, bestMoney: 0 };
-  try { const p = JSON.parse(localStorage.getItem('lephare_progress') || 'null'); if (p && p.maxDay) progress = p; } catch (e) { /* ignore */ }
+  // 最高收入紀錄（舊版的 maxDay 天數進度已不使用，讀到也忽略）
+  let progress = { bestMoney: 0 };
+  try { const p = JSON.parse(localStorage.getItem('lephare_progress') || 'null'); if (p && Number(p.bestMoney) > 0) progress.bestMoney = Number(p.bestMoney); } catch (e) { /* ignore */ }
   function saveProgress() { try { localStorage.setItem('lephare_progress', JSON.stringify(progress)); } catch (e) { /* ignore */ } }
+  // v7 練習範圍
+  function getPool(cats) {
+    const list = normCats(cats === undefined ? (state.practice && state.practice.cats) : cats);
+    return RECIPES.filter(r => list.includes(r.cat));
+  }
+  function scopeLabel(cats) {
+    const list = normCats(cats === undefined ? (state.practice && state.practice.cats) : cats);
+    if (list.length === CATEGORIES.length) return '全部系列';
+    if (list.length === 1) return list[0];
+    return list.length + ' 個系列';
+  }
 
   // ===== 平均抽取牌組（PLAN-v2 §3.1）=====
   const DRAWS_KEY = 'lephare_draws';
@@ -1185,14 +1066,15 @@
   function saveDraws() { try { localStorage.setItem(DRAWS_KEY, JSON.stringify(draws)); } catch (e) { /* ignore */ } }
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   // v5 系列輪流：依 cat 分組 → 組內隨機洗牌後依累計抽取次數穩定排序 → 系列順序洗牌一次 → round-robin 每系列各取 1 款直到取完
-  // 抽單配額（使用者指定）：每 10 杯固定 4 杯蘋果類，其餘 6 杯由另外 14 個系列輪流
+  // 抽單配額（使用者指定）：練習範圍同時有蘋果類與其他系列時，每 10 杯固定 4 杯蘋果類，其餘 6 杯由其他系列輪流
+  // v7：範圍只有其中一類時只用一條佇列（useApple = null 代表範圍內全部），每區塊 10 杯都從它抽
   const APPLE_CATS = ['老饕蘋果系列', '蘋果系列'];
   const APPLE_PER_10 = 4;
-  let qApple = null, qOther = null;   // 兩條獨立佇列，各自系列輪流、同系列內抽過最少次的排前面
+  let qApple = null, qOther = null, qAll = null;   // 各自系列輪流、同系列內抽過最少次的排前面
   function buildQueue(useApple) {
     const groups = new Map();
-    getPool(state.day).forEach(r => {
-      if (APPLE_CATS.includes(r.cat) !== useApple) return;
+    getPool().forEach(r => {
+      if (useApple !== null && APPLE_CATS.includes(r.cat) !== useApple) return;
       if (!groups.has(r.cat)) groups.set(r.cat, []);
       groups.get(r.cat).push(r.id);
     });
@@ -1206,20 +1088,26 @@
     return out;
   }
   function takeFrom(useApple, block) {
-    let q = useApple ? qApple : qOther;
-    if (!q || !q.length) { q = buildQueue(useApple); if (useApple) qApple = q; else qOther = q; }
-    let i = q.findIndex(id => block.indexOf(id) < 0);   // 佇列在區塊中途重建時，避免同一區塊出現重複飲料
+    let q = useApple === null ? qAll : useApple ? qApple : qOther;
+    if (!q || !q.length) { q = buildQueue(useApple); if (useApple === null) qAll = q; else if (useApple) qApple = q; else qOther = q; }
+    let i = q.findIndex(id => block.indexOf(id) < 0);   // 佇列在區塊中途重建時，避免同一區塊出現重複飲料（款數不足 10 時才允許重複）
     if (i < 0) i = 0;
     return q.splice(i, 1)[0];
   }
-  function nextBlock() {   // 一個區塊 10 杯：4 蘋果 + 6 其他，區塊內順序打散
+  function nextBlock() {   // 一個區塊 10 杯（區塊內順序打散）：蘋果類＋其他都有 → 4 蘋果 + 6 其他；只有一類 → 10 杯都從那一類
     const block = [];
-    for (let i = 0; i < APPLE_PER_10; i++) { const id = takeFrom(true, block); if (id) block.push(id); }
-    for (let i = 0; i < 10 - APPLE_PER_10; i++) { const id = takeFrom(false, block); if (id) block.push(id); }
+    const pool = getPool();
+    const hasApple = pool.some(r => APPLE_CATS.includes(r.cat)), hasOther = pool.some(r => !APPLE_CATS.includes(r.cat));
+    if (hasApple && hasOther) {
+      for (let i = 0; i < APPLE_PER_10; i++) { const id = takeFrom(true, block); if (id) block.push(id); }
+      for (let i = 0; i < 10 - APPLE_PER_10; i++) { const id = takeFrom(false, block); if (id) block.push(id); }
+    } else {
+      for (let i = 0; i < 10; i++) { const id = takeFrom(null, block); if (id) block.push(id); }
+    }
     return shuffle(block);
   }
-  function refillDeck() {   // 換天／重設：兩條佇列重排（依累計抽取次數），再發一個區塊
-    qApple = null; qOther = null;
+  function refillDeck() {   // 開始練習／重設：佇列重排（依累計抽取次數），再發一個區塊
+    qApple = null; qOther = null; qAll = null;
     state.deck = nextBlock();
     return state.deck.length;
   }
@@ -1525,7 +1413,7 @@
     render();
   }
   function resetCup(keepSize) {
-    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.active = 's';
+    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.active = 'c';
     if (!keepSize) { state.cup.size = 'M'; state.cup.temp = '冰'; }
     GameAudio.play('reset');
     render();
@@ -1722,7 +1610,7 @@
     state.currentId = state.queue.find(i => byId(i)) || null;
     leaveCustomer(order.id);
     GameAudio.play('serve');
-    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.cup.size = 'M'; state.cup.temp = '冰'; state.active = 's';
+    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.cup.size = 'M'; state.cup.temp = '冰'; state.active = 'c';
     const result = { order, cup, score: sc, T, sat, stars, money, elapsed: order.elapsed };
     showResult(result);
     render();
@@ -1762,62 +1650,104 @@
   }
   function checkDayEnd() {
     if (!state.started || state.dayOver) return;
-    if (state.served >= dayConf(state.day).customers) {
+    if (state.served >= PRACTICE.customers) {
       state.dayOver = true;
-      progress.maxDay = Math.max(progress.maxDay, state.day + 1);
-      saveProgress();
       showDayEnd();
     }
   }
   function showDayEnd() {
     const box = $('#dayend-box');
     const avg = state.served ? (state.starSum / state.served).toFixed(1) : '-';
-    box.innerHTML = '<h2>🌙 Day ' + state.day + ' 結算</h2>' +
+    box.innerHTML = '<h2>🌙 本輪結算 · ' + esc(scopeLabel()) + '</h2>' +
       '<div class="grid">' +
       '<div>客人數</div><b>' + state.served + '</b>' +
       '<div>平均星等</div><b>★ ' + avg + '</b>' +
       '<div>總收入</div><b>$ ' + state.money.toLocaleString() + '</b>' +
       '<div>★5 次數</div><b>' + state.fiveStars + '</b>' +
       '<div>最慢一杯</div><b>' + Math.round(state.slowest) + ' 秒</b></div>' +
-      '<div class="actions" style="justify-content:center"><button id="de-next" class="primary">下一天</button><button id="de-retry">重玩本日</button><button id="de-menu">回主選單</button></div>';
-    $('#de-next').addEventListener('click', () => startDay(state.day + 1));
-    $('#de-retry').addEventListener('click', () => startDay(state.day));
-    $('#de-menu').addEventListener('click', () => { hideModal('modal-day-end'); state.started = false; buildDayPicker(); showModal('modal-start'); GameAudio.music('menu'); });
+      '<div class="actions" style="justify-content:center"><button id="de-retry" class="primary">再練一輪</button><button id="de-menu">換練習種類</button></div>';
+    $('#de-retry').addEventListener('click', () => startPractice(state.practice.cats));
+    $('#de-menu').addEventListener('click', backToStart);
     GameAudio.music('dayend'); GameAudio.play('dayend_chime');
     showModal('modal-day-end');
   }
-
-  // ===== 開店 =====
-  let pickedDay = 1;
-  function buildDayPicker() {
-    const wrap = $('#day-picker'); wrap.innerHTML = '';
-    pickedDay = clamp(pickedDay, 1, progress.maxDay);
-    for (let d = 1; d <= 5; d++) {
-      const b = document.createElement('button');
-      b.className = 'day-btn' + (d === pickedDay ? ' on' : ''); b.dataset.day = d;
-      const locked = d > progress.maxDay;
-      b.disabled = locked;
-      b.innerHTML = (locked ? '🔒 ' : '') + 'Day ' + (d === 5 ? '5+' : d) + '<small>' + DAY_CONFIG[d].customers + ' 位客人</small>';
-      b.addEventListener('click', () => { pickedDay = d; buildDayPicker(); });
-      wrap.appendChild(b);
-    }
+  // 「換練習種類」：回開始畫面，預設帶入目前的練習範圍
+  function backToStart() {
+    hideModal('modal-day-end'); state.started = false;
+    picked = state.practice.cats.slice(); renderPicker();
+    showModal('modal-start'); GameAudio.music('menu');
   }
-  function startDay(day) {
-    day = Math.max(1, Math.floor(Number(day) || 1));
-    state.day = day; state.started = true; state.paused = false; state.dayOver = false;
+
+  // ===== 開始畫面：選練習系列 =====
+  const PRACTICE_KEY = 'lephare_practice';
+  function loadPicked() {
+    try {
+      const a = JSON.parse(localStorage.getItem(PRACTICE_KEY) || 'null');
+      if (Array.isArray(a)) { const f = CATEGORIES.filter(c => a.includes(c)); if (f.length) return f; }
+    } catch (e) { /* ignore */ }
+    return CATEGORIES.slice();   // 沒存過（或讀不到）→ 全選
+  }
+  function savePicked(cats) { try { localStorage.setItem(PRACTICE_KEY, JSON.stringify(cats)); } catch (e) { /* ignore */ } }
+  let picked = loadPicked();
+  const catCount = c => RECIPES.filter(r => r.cat === c).length;
+  function buildPracticePicker() {
+    const wrap = $('#practice-picker'); wrap.innerHTML = '';
+    ['all'].concat(CATEGORIES).forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'cat-btn'; b.dataset.cat = c;
+      const name = c === 'all' ? '全部系列' : c, n = c === 'all' ? RECIPES.length : catCount(c);
+      b.innerHTML = '<span>' + esc(name) + '</span><small>' + n + ' 款</small>';
+      b.setAttribute('aria-label', name + ' · ' + n + ' 款');
+      b.addEventListener('click', () => {
+        if (c === 'all') picked = picked.length === CATEGORIES.length ? [] : CATEGORIES.slice();
+        else picked = picked.includes(c) ? picked.filter(x => x !== c) : CATEGORIES.filter(x => x === c || picked.includes(x));
+        GameAudio.play('tab');
+        renderPicker();
+      });
+      wrap.appendChild(b);
+    });
+    renderPicker();
+  }
+  function renderPicker() {
+    const all = picked.length === CATEGORIES.length;
+    $$('#practice-picker .cat-btn').forEach(b => {
+      const on = b.dataset.cat === 'all' ? all : picked.includes(b.dataset.cat);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    const sum = $('#practice-summary'), btn = $('#btn-start');
+    if (!picked.length) {
+      sum.innerHTML = '<span class="warn">請至少選一個系列</span>';
+      btn.disabled = true;
+      return;
+    }
+    const n = RECIPES.filter(r => picked.includes(r.cat)).length;
+    const hasApple = picked.some(c => APPLE_CATS.includes(c)), hasOther = picked.some(c => !APPLE_CATS.includes(c));
+    sum.innerHTML = '已選 <b>' + picked.length + '</b> 個系列・<b>' + n + '</b> 款' + (hasApple && hasOther ? '・每 10 杯有 4 杯蘋果類' : '');
+    btn.disabled = false;
+  }
+  function startFromPicker() {
+    if (!picked.length) { toast('請至少選一個系列'); return; }
+    savePicked(picked.slice());
+    startPractice(picked.slice());
+  }
+
+  // ===== 開始練習 =====
+  function startPractice(cats) {
+    state.practice = { cats: normCats(cats) };
+    state.started = true; state.paused = false; state.dayOver = false;
     state.money = 0; state.served = 0; state.spawned = 0; state.starSum = 0; state.fiveStars = 0; state.slowest = 0;
     state.orders = []; state.queue = []; state.currentId = null; state.forcedNext = null;
-    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.cup.size = 'M'; state.cup.temp = '冰'; state.active = 's';
+    clearVessels(); state.cup.actions = []; state.cup.finish = 'none'; state.cup.size = 'M'; state.cup.temp = '冰'; state.active = 'c';
     state.measure.src = null; state.measure.ml = 0;
     if (action) { const a = action; action = null; state.busy = null; $('#staff').classList.remove('busy'); a.resolve(false); }
     stopFill(); stopIceFill();
-    refillDeck(); // 依新 pool 與累計抽取次數重建牌組
+    refillDeck(); // 依練習範圍與累計抽取次數重建牌組
     GameAudio.stopAllLoops(true); GameAudio.music('play'); GameAudio.play('open');
     ['modal-start', 'modal-recipes', 'modal-result', 'modal-day-end', 'modal-qty'].forEach(hideModal);
     pausedByRecipes = false; pausedByResult = false; applyPauseUI();
     $('#counter').querySelectorAll('.customer').forEach(el => el.remove());
-    // 第一位客人於開店後約 1.5 秒進門（由主循環抽牌），之後照 interval
-    spawnTimer = Math.max(0, dayConf(day).interval - 1.5);
+    // 第一位客人於開始後約 1.5 秒進門（由主循環抽牌），之後照 interval
+    spawnTimer = Math.max(0, PRACTICE.interval - 1.5);
     setMTab('ing'); mSheet(false);
     render();
     return true;
@@ -1873,48 +1803,8 @@
     ul.querySelectorAll('.recipe-row').forEach(li => li.addEventListener('click', () => li.classList.toggle('open')));
   }
   // v6：開配方表＝暫停（耐心／動作計時停止）；關閉時若是配方表造成的暫停則恢復，玩家原本手動暫停的維持暫停
-  // ===== 速記法分頁 =====
-  let recipeMode = 'list';
-  const FAM_NAME = { f1: '純茶家族', f2: '奶茶／珍奶家族', f3: '冷縮茶歐蕾', f4: '台灣茶歐蕾', f5: '台灣茶純茶', f6: '老饕蘋果家族', f7: '蘋果系列', f8: '果汁機家族', f9: '芭樂家族', f10: '蜜桃家族', f11: '柳橙／西瓜／多多', f12: '配料茶（寒天波椰、梅子、仙草）' };
-  function familyOf(r) {
-    if (!r) return null;
-    if (/奶茶$|珍奶/.test(r.name)) return 'f2';
-    if (/歐蕾/.test(r.name)) return r.cat === '台灣茶系列' ? 'f4' : 'f3';
-    if (r.cat === '台灣茶系列') return 'f5';
-    if (r.cat === '純茶系列' || r.name === '蜂蜜四季青') return 'f1';
-    if (r.cat === '老饕蘋果系列') return 'f6';
-    if (r.cat === '蘋果系列') return 'f7';
-    if (r.actions.includes('blend')) return 'f8';
-    if (r.cat === '芭樂系列') return 'f9';
-    if (r.cat === '蜜桃系列') return 'f10';
-    if (['水果系列', '西瓜系列', '多多系列'].includes(r.cat)) return 'f11';
-    return 'f12';
-  }
-  function renderMemo() {
-    const panel = $('#memo-panel');
-    if (!panel.dataset.built) { panel.appendChild($('#memo-tpl').content.cloneNode(true)); panel.dataset.built = '1'; }
-    const o = cur(); const fam = o ? familyOf(o.recipe) : null;
-    panel.querySelectorAll('.fam').forEach(el => el.classList.toggle('hl', el.dataset.fam === fam));
-    const now = panel.querySelector('#memo-now');
-    if (fam) { now.hidden = false; now.textContent = '👉 這杯「' + o.recipe.name + '」屬於：' + FAM_NAME[fam] + '（已標示）'; }
-    else now.hidden = true;
-    return fam;
-  }
-  function setRecipeMode(mode) {
-    recipeMode = mode === 'memo' ? 'memo' : 'list';
-    const memo = recipeMode === 'memo';
-    $('#rmode-list').classList.toggle('on', !memo); $('#rmode-memo').classList.toggle('on', memo);
-    $('#recipe-list').hidden = memo; $('#rtabs').hidden = memo; $('#recipe-search').hidden = memo;
-    $('#memo-panel').hidden = !memo;
-    if (memo) {
-      const fam = renderMemo();
-      const target = fam && $('#memo-panel .fam[data-fam="' + fam + '"]');
-      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
-    }
-  }
   function openRecipes() {
     buildRecipeTabs(); renderRecipeList(); GameAudio.play('ui_open'); showModal('modal-recipes');
-    setRecipeMode(recipeMode);
     if (state.started && !state.dayOver && !state.paused) { pausedByRecipes = true; setPaused(true); }
     else { pausedByRecipes = false; applyPauseUI(); }
   }
@@ -1927,8 +1817,9 @@
 
   // ===== Render =====
   function renderHud() {
-    $('#hud-day').textContent = 'Day ' + state.day;
-    $('#hud-cust').textContent = '客人 ' + state.served + '/' + dayConf(state.day).customers;
+    const scope = scopeLabel(), hd = $('#hud-day');
+    hd.textContent = scope; hd.title = '練習範圍：' + state.practice.cats.join('、');
+    $('#hud-cust').textContent = '客人 ' + state.served + '/' + PRACTICE.customers;
     $('#hud-money').textContent = '$ ' + state.money.toLocaleString();
     $('#hud-star').textContent = '★ ' + (state.served ? (state.starSum / state.served).toFixed(1) : '-');
   }
@@ -2112,7 +2003,7 @@
     if (!state.started || state.paused) return;
     state.orders.forEach(o => { o.elapsed += dt; });
     if (!state.dayOver) {
-      const conf = dayConf(state.day);
+      const conf = PRACTICE;
       spawnTimer += dt;
       if (spawnTimer >= conf.interval && state.spawned < conf.customers && state.orders.length < conf.maxOnCounter) spawnCustomer();
     }
@@ -2183,12 +2074,10 @@
     $('#btn-recipes').addEventListener('click', openRecipes);
     $('#btn-recipes-dock').addEventListener('click', openRecipes);   // v5 手機版底部送出列的配方表快捷鍵
     $('#btn-recipes-close').addEventListener('click', closeRecipes);
-    $('#rmode-list').addEventListener('click', () => { setRecipeMode('list'); GameAudio.play('tab'); });
-    $('#rmode-memo').addEventListener('click', () => { setRecipeMode('memo'); GameAudio.play('tab'); });
     $('#recipe-search').addEventListener('input', e => { rquery = e.target.value.trim().toLowerCase(); renderRecipeList(); });
     $('#btn-pause').addEventListener('click', togglePause);
     $('#pause-overlay').addEventListener('click', togglePause);
-    $('#btn-start').addEventListener('click', () => startDay(pickedDay));
+    $('#btn-start').addEventListener('click', startFromPicker);
     ['M', 'L'].forEach(s => $('#cup-size-' + s).addEventListener('click', () => setSize(s)));
     $('#cup-temp-cold').addEventListener('click', () => setTemp('冰'));
     $('#cup-temp-hot').addEventListener('click', () => setTemp('熱'));
@@ -2305,7 +2194,8 @@
     const st = [[90, 5], [89, 4], [75, 4], [74, 3], [60, 3], [59, 2], [40, 2], [39, 1]].every(([s, x]) => starsFor(s) === x);
     t('#22 權重/時間/耐心/星等', near(w[0], 60) && near(w[1], 40) && near(w[2], 100) && tf && pats.every(p => p >= 60 && p <= 150) && st, w.join(',') + ' pat ' + Math.min(...pats) + '~' + Math.max(...pats));
     // #3 pool
-    t('#3 pool', [1, 2, 3, 4, 5].every(d => getPool(d).length === RECIPES.length) && new Set(getPool(1).map(r => r.cat)).size === 16, [1, 2, 3, 4].map(d => getPool(d).length).join('/'));
+    const pAll = getPool(null), pTw = getPool(['台灣茶系列', '不存在']);
+    t('#3 pool', pAll.length === RECIPES.length && new Set(pAll.map(r => r.cat)).size === 16 && getPool([]).length === RECIPES.length && getPool('all').length === RECIPES.length && pTw.length > 0 && pTw.every(r => r.cat === '台灣茶系列'), pAll.length + '/' + pTw.length);
     // bubbleText
     const bt = bubbleText({ recipe: RECIPES.find(r => r.name === '林華泰四季青' && r.size === 'L'), iceLevel: 'less', sweetKey: '正常' });
     const bh = bubbleText({ recipe: RECIPES.find(r => r.name === '熟成奶茶' && r.temp === '熱'), iceLevel: null, sweetKey: '正常' });
@@ -2316,13 +2206,13 @@
   }
 
   // ===== 初始化 =====
-  buildBench(); buildDayPicker(); bind(); refillDeck(); applyLayout(); render();
+  buildBench(); buildPracticePicker(); bind(); refillDeck(); applyLayout(); render();
   selftest();
 
   window.game = {
-    state, RECIPES, ING, ACTIONS, FINISH, ICE_LEVELS, DAY_CONFIG,
+    state, RECIPES, ING, ACTIONS, FINISH, ICE_LEVELS, PRACTICE,
     serve, addItem, doAction, setFinish, score, forceNextRecipe, spawnCustomer, getPool,
-    timeFactor, patienceFor, starsFor, moneyFor, mountMeasure, setMeasure, emptyMeasure, pour, acceptOrder, startDay, render,
+    timeFactor, patienceFor, starsFor, moneyFor, mountMeasure, setMeasure, emptyMeasure, pour, acceptOrder, startPractice, render,
     undo, resetCup, setSize, setTemp, togglePause, openRecipes, closeRecipes, selftest, kindOf, fmtQty,
     // v2
     setIce, resolveOrder, bubbleText, getDeck, drawCounts, resetDraws, refillDeck, itemScore,

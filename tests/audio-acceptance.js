@@ -78,7 +78,7 @@ async function runAudioAcceptance() {
     ok('A10', l1 && l2 === 1 && l3 === 0 && l4, `${l1},${l2},${l3},${l4}`);
 
     // A11 裝填掛點
-    g.startDay(1); await sleep(100); g.mountMeasure('green'); g.setMeasure(0);
+    g.startPractice(); await sleep(100); g.mountMeasure('green'); g.setMeasure(0);
     fire($('#m-fill'), 'pointerdown'); await sleep(80); const f1 = A.state.loops.includes('fill');
     fire($('#m-fill'), 'pointerup'); await sleep(50); const f2 = A.state.loops.includes('fill');
     ok('A11', f1 && !f2, `down=${f1} up=${f2} loops=${A.state.loops}`);
@@ -123,9 +123,9 @@ async function runAudioAcceptance() {
       ok('A19', bn.undo === 1 && !bn.click, JSON.stringify(bn));
     }
 
-    // A16 結算與主選單模式（跑完 Day1）
-    g.startDay(1); await sleep(200);
-    const total = g.DAY_CONFIG[1].customers; let served = 0, guard = 0;
+    // A16 結算與主選單模式（跑完一輪練習）
+    g.startPractice(); await sleep(200);
+    const total = g.PRACTICE.customers; let served = 0, guard = 0;
     while (served < total && guard++ < 40) {
       if (!g.state.orders.length) g.spawnCustomer();
       const od = g.state.orders[0]; g.acceptOrder(od.id);
@@ -136,9 +136,9 @@ async function runAudioAcceptance() {
     }
     await sleep(1200);
     const m1 = A.state.musicMode;
-    const menuBtn = $$('#modal-day-end button').find(b => /主選單/.test(b.textContent));
+    const menuBtn = $$('#modal-day-end button').find(b => /換練習種類/.test(b.textContent));
     menuBtn && menuBtn.click(); await sleep(100); const m2 = A.state.musicMode;
-    g.startDay(1); await sleep(100); const m3 = A.state.musicMode;
+    g.startPractice(); await sleep(100); const m3 = A.state.musicMode;
     ok('A16', m1 === 'dayend' && m2 === 'menu' && m3 === 'play', `${m1},${m2},${m3} menuBtn=${!!menuBtn}`);
 
     // A17 無 AudioContext 靜默（iframe）

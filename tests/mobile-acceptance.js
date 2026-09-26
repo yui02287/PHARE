@@ -49,7 +49,7 @@ async function runMobileAcceptance() {
   if (W() > 820) { ok('M0', false, `視窗寬 ${W()} > 820，請先切到手機尺寸（375×812）再執行`); return summarize(); }
 
   try {
-    g.startDay(4); await sleep(300);
+    g.startPractice(); await sleep(300);
     g.state.orders = []; g.state.queue = []; g.state.currentId = null;
     const rec = g.RECIPES.find(r => r.name === '林華泰鐵觀音' && r.size === 'L' && r.temp === '冰');
     g.forceNextRecipe(rec.id); const order = g.spawnCustomer(); g.spawnCustomer();
@@ -184,16 +184,14 @@ async function runMobileAcceptance() {
     const rbtn = ['#btn-recipes-dock', '#btn-recipes'].map($).find(el => el && shown(el));
     await tap(rbtn, '配方表鍵'); await sleep(200);
     const rb = $('#modal-recipes .box'); const recFits = rb && inView(rb);
-    const memo = $('#rmode-memo'); memo && memo.click(); await sleep(150);
-    const memoFits = rb && inView(rb) && shown($('#memo-panel'));
-    const list = $('#rmode-list'); list && list.click(); await sleep(80);
+    const memoFits = rb && inView(rb) && !$('#rmode-memo') && !$('#memo-panel');   // v7：速記分頁已移除
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await sleep(150);
     const recClosed = getComputedStyle($('#modal-recipes')).display === 'none';
     const ms = $('#modal-start'); ms.style.display = 'flex'; await sleep(120);
     const sb = ms.querySelector('.box'); const startFits = sb && inView(sb);
-    const dayOver = $$('#modal-start .day-btn, #modal-start [data-day]').filter(shown).filter(b => rect(b).right > W() + 1).length;
+    const catN = $$('#modal-start .cat-btn').length; const dayOver = $$('#modal-start .cat-btn').filter(shown).filter(b => rect(b).right > W() + 1).length;
     ms.style.display = 'none';
-    ok('M9', recFits && memoFits && recClosed && startFits && dayOver === 0 && steps.length === 0, `配方表=${recFits} 速記=${memoFits} Esc關閉=${recClosed} 開始畫面=${startFits} Day卡超出=${dayOver} ${steps.splice(0).join('、')}`);
+    ok('M9', recFits && memoFits && recClosed && startFits && catN === 17 && dayOver === 0 && steps.length === 0, `配方表=${recFits} 速記分頁已移除=${memoFits} Esc關閉=${recClosed} 開始畫面=${startFits} 系列鍵超出=${dayOver} ${steps.splice(0).join('、')}`);
 
     // M10 整段操作後頁面仍未捲動、仍無水平捲軸
     ok('M10', pageY() === 0 && document.documentElement.scrollWidth <= W() + 1, `scrollTop=${pageY()} scrollWidth=${document.documentElement.scrollWidth}`);

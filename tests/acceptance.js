@@ -38,7 +38,7 @@ async function runAcceptance() {
     ok(1, typeof g === 'object' && g && Array.isArray(g.RECIPES) && g.RECIPES.length === 108 && D && D.ICE_LEVELS && D.VESSELS && api.every(k => typeof g[k] === 'function') && g.state.vessels && ['c', 's', 'b', 't'].every(v => Array.isArray(g.state.vessels[v].items)) && g.state.cup.items === g.state.vessels.c.items,
       'recipes=' + (g && g.RECIPES && g.RECIPES.length) + ' api=' + api.map(k => typeof (g && g[k])).join(',') + ' cupAlias=' + (g && g.state.cup.items === g.state.vessels.c.items));
     if (typeof g !== 'object') return summarize();
-    g.startDay(4); await sleep(150);
+    g.startPractice(); await sleep(150);
 
     // #2 所有配方皆可被點到
     let bad = [];
@@ -48,22 +48,49 @@ async function runAcceptance() {
       g.state.orders = g.state.orders.filter(x => x !== o);
     }
     clearCounter();
-    ok(2, bad.length === 0 && g.getPool(4).length === g.RECIPES.length, 'bad=' + bad.slice(0, 5).join(',') + ' pool4=' + g.getPool(4).length);
+    ok(2, bad.length === 0 && g.getPool().length === g.RECIPES.length, 'bad=' + bad.slice(0, 5).join(',') + ' poolAll=' + g.getPool().length);
 
-    // #3 每日 pool
-    const ids = d => new Set(g.getPool(d).map(r => r.id));
-    const sub = (a, b) => [...a].every(x => b.has(x));
-    const p1 = ids(1), p2 = ids(2), p3 = ids(3), p4 = ids(4);
-    const c1 = new Set(g.getPool(1).map(r => r.cat));
-    ok(3, p1.size === g.RECIPES.length && p2.size === g.RECIPES.length && p3.size === g.RECIPES.length && p4.size === g.RECIPES.length && sub(p1, p4) && c1.size === 16, `sizes ${p1.size}/${p2.size}/${p3.size}/${p4.size} day1cats=${c1.size}`);
-
-    // #4
-    ok(4, [8, 9, 10, 12].every((n, i) => g.DAY_CONFIG[i + 1] && g.DAY_CONFIG[i + 1].customers === n), JSON.stringify([1, 2, 3, 4].map(d => g.DAY_CONFIG[d] && g.DAY_CONFIG[d].customers)));
-
-    // #5 蘋果配額（使用者指定）：每 10 杯恰好 4 杯 蘋果系列／老饕蘋果系列
+    // #3 練習範圍（v7：不再分天，改選練習的飲料系列）：getPool(cats) 只含所選系列；只選一個系列時抽到的全是該系列
     const APPLE_CATS = ['老饕蘋果系列', '蘋果系列'];
     const isApple = r => APPLE_CATS.includes(r.cat);
-    g.resetDraws(); g.startDay(4); await sleep(100);
+    const allCats = [...new Set(g.RECIPES.map(r => r.cat))];
+    const poolOk = allCats.every(c => { const p = g.getPool([c]); return p.length === g.RECIPES.filter(r => r.cat === c).length && p.every(r => r.cat === c); });
+    const pool2 = g.getPool(['台灣茶系列', '紅茶系列']);
+    const pool2Ok = pool2.length === g.RECIPES.filter(r => r.cat === '台灣茶系列' || r.cat === '紅茶系列').length;
+    g.startPractice(['台灣茶系列']); await sleep(80);
+    const startActiveC = g.state.active === 'c';   // v7：預設容器改回紙杯
+    const single = []; for (let i = 0; i < 30; i++) { const o = g.spawnCustomer(); single.push(o.recipe); g.state.orders = g.state.orders.filter(x => x !== o); }
+    clearCounter();
+    const singleOk = single.every(r => r.cat === '台灣茶系列');
+    const nTw = g.RECIPES.filter(r => r.cat === '台灣茶系列').length;
+    const singleSpread = new Set(single.slice(0, Math.min(10, nTw)).map(r => r.id)).size === Math.min(10, nTw);   // 前 10 杯不重複（款數夠時）
+    const scopeOk = g.state.practice && Array.isArray(g.state.practice.cats) && g.state.practice.cats.join() === '台灣茶系列' && /台灣茶/.test($('#hud-day').textContent);
+    ok(3, allCats.length === 16 && poolOk && pool2Ok && singleOk && singleSpread && scopeOk && startActiveC && !g.DAY_CONFIG,
+      `cats=${allCats.length} poolOk=${poolOk} pool2=${pool2Ok} 只抽台灣茶=${singleOk} 前10不重複=${singleSpread} state.practice=${JSON.stringify(g.state.practice && g.state.practice.cats)} hud=${$('#hud-day').textContent} DAY_CONFIG已移除=${!g.DAY_CONFIG} 開局容器=${g.state.active}`);
+
+    // #4 開始畫面：16 個系列＋「全部」可多選，沒有 Day 選擇；選了系列後開始 → HUD 顯示練習範圍；選擇會記住
+    const ms4 = $('#modal-start'); ms4.style.display = 'flex'; await sleep(60);
+    const catBtns = $$('#modal-start .cat-btn[data-cat]');
+    const catSet = new Set(catBtns.map(b => b.dataset.cat));
+    const pickerOk = catBtns.length === 17 && catSet.has('all') && allCats.every(c => catSet.has(c)) && $$('#modal-start .day-btn, #modal-start [data-day]').length === 0;
+    const btnAll = catBtns.find(b => b.dataset.cat === 'all');
+    const btnMilk = catBtns.find(b => b.dataset.cat === '紅茶系列'), btnTw = catBtns.find(b => b.dataset.cat === '台灣茶系列');
+    // 先按「全部」確保全選，再按一次取消全選，接著選兩個系列
+    if (btnAll && btnAll.getAttribute('aria-pressed') !== 'true') { btnAll.click(); await sleep(30); }
+    const allOn = catBtns.filter(b => b.dataset.cat !== 'all').every(b => b.getAttribute('aria-pressed') === 'true');
+    btnAll && btnAll.click(); await sleep(30);
+    btnMilk && btnMilk.click(); await sleep(30); btnTw && btnTw.click(); await sleep(30);
+    const twoOn = catBtns.filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.dataset.cat).sort().join();
+    $('#btn-start').click(); await sleep(150);
+    const started = getComputedStyle(ms4).display === 'none' && g.state.started && g.state.practice.cats.slice().sort().join() === ['台灣茶系列', '紅茶系列'].sort().join();
+    let saved = null; try { saved = JSON.parse(localStorage.getItem('lephare_practice')); } catch (e) { }
+    const savedOk = Array.isArray(saved) && saved.slice().sort().join() === ['台灣茶系列', '紅茶系列'].sort().join();
+    ok(4, pickerOk && allOn && twoOn === ['台灣茶系列', '紅茶系列'].sort().join() && started && savedOk,
+      `按鈕=${catBtns.length} picker=${pickerOk} 全部→全選=${allOn} 兩系列=${twoOn} 開始=${started} 記住=${JSON.stringify(saved)}`);
+    try { localStorage.removeItem('lephare_practice'); } catch (e) { }
+
+    // #5 蘋果配額（使用者指定）：練習「全部」時每 10 杯恰好 4 杯 蘋果系列／老饕蘋果系列
+    g.resetDraws(); g.startPractice(); await sleep(100);
     const drawSeq = [];
     for (let i = 0; i < 200; i++) { const o = g.spawnCustomer(); drawSeq.push(o.recipe); g.state.orders = g.state.orders.filter(x => x !== o); }
     clearCounter();
@@ -84,11 +111,20 @@ async function runAcceptance() {
     const other12 = new Set(otherSeq.slice(0, 12).map(r => r.cat)).size === 12;         // 另外 14 系列輪流
     const other84 = new Set(otherSeq.slice(0, 84).map(r => r.id)).size === 84;          // 86 款輪完才重複
     const allSeen = new Set(drawSeq.map(r => r.id)).size === g.RECIPES.length;
-    ok(6, apple20 && appleBoth && other12 && other84 && allSeen,
-      `apple20=${apple20} 兩系列都有=${appleBoth} other12=${other12} other84=${other84} 全部出現=${new Set(drawSeq.map(r => r.id)).size}/${g.RECIPES.length}`);
+    // 部分範圍：同時選了蘋果類與其他系列 → 仍是每 10 杯 4 杯蘋果；只選非蘋果系列 → 不會出現蘋果
+    g.startPractice(['蘋果系列', '台灣茶系列']); await sleep(50);
+    const mix = []; for (let i = 0; i < 40; i++) { const o = g.spawnCustomer(); mix.push(o.recipe); g.state.orders = g.state.orders.filter(x => x !== o); }
+    clearCounter();
+    const mixOk = [0, 10, 20, 30].every(i => mix.slice(i, i + 10).filter(isApple).length === 4) && mix.every(r => r.cat === '蘋果系列' || r.cat === '台灣茶系列');
+    g.startPractice(['紅茶系列', '台灣茶系列']); await sleep(50);
+    const noA = []; for (let i = 0; i < 20; i++) { const o = g.spawnCustomer(); noA.push(o.recipe); g.state.orders = g.state.orders.filter(x => x !== o); }
+    clearCounter();
+    const noAppleOk = noA.every(r => r.cat === '紅茶系列' || r.cat === '台灣茶系列') && new Set(noA.map(r => r.cat)).size === 2;
+    ok(6, apple20 && appleBoth && other12 && other84 && allSeen && mixOk && noAppleOk,
+      `apple20=${apple20} 兩系列都有=${appleBoth} other12=${other12} other84=${other84} 全部出現=${new Set(drawSeq.map(r => r.id)).size}/${g.RECIPES.length} 蘋果+台灣茶每10杯4蘋果=${mixOk} 無蘋果範圍=${noAppleOk}`);
 
     // #7 訂單欄位、target 容器、泡泡
-    g.startDay(4); await sleep(100);
+    g.startPractice(); await sleep(100);
     const rCold = g.RECIPES.find(r => r.name === '西瓜多多');
     const rHot = g.RECIPES.find(r => r.temp === '熱');
     const rSv = g.RECIPES.find(r => r.name === '西瓜四季青');
@@ -253,10 +289,10 @@ async function runAcceptance() {
     const n25 = g.state.vessels.c.items.length + g.state.vessels.s.items.length, noIce = !g.state.vessels.s.items.some(i => i.ing === 'ice');
     g.setIce(80, 'c'); g.setFinish('topWater'); g.selectVessel('s'); $('#btn-reset-cup').click(); await sleep(30);
     const allEmpty = ['c', 's', 'b', 't'].every(v => g.state.vessels[v].items.length === 0);
-    ok(25, n25 === 2 && noIce && allEmpty && g.state.cup.actions.length === 0 && g.state.cup.finish === 'none' && g.state.active === 's', `undo=${n25} noIce=${noIce} empty=${allEmpty} active=${g.state.active}`);
+    ok(25, n25 === 2 && noIce && allEmpty && g.state.cup.actions.length === 0 && g.state.cup.finish === 'none' && g.state.active === 'c', `undo=${n25} noIce=${noIce} empty=${allEmpty} active=${g.state.active}`);
 
     // #26 空杯 disabled；完美製作（分容器、倒入）→ Q 100；送出流程
-    g.startDay(4); await sleep(100); clearCounter();
+    g.startPractice(); await sleep(100); clearCounter();
     g.forceNextRecipe(g.RECIPES.find(r => r.name === '西瓜四季青').id); const o26 = g.spawnCustomer(); if (g.render) g.render(); await sleep(30);
     clearCup(); const dis = $('#btn-serve').disabled === true;
     g.acceptOrder(o26.id);
@@ -290,20 +326,14 @@ async function runAcceptance() {
     const hasMemoRules = vrows >= 2 && memoLis.length >= 2 && memoLis.some(t => /五分 60／七分 80/.test(t) && /建議五分/.test(t)) && !/製程順序/.test(mtxt);
     const box27 = $('#modal-recipes .box') || $('#modal-recipes > *'); const br27 = box27 && box27.getBoundingClientRect();
     const boxFits = br27 && br27.bottom <= window.innerHeight + 1 && br27.right <= window.innerWidth + 1 && br27.top >= -1;
-    // 速記法分頁：在配方表內、可切換、內容含規則口訣、自動標示目前訂單的家族；切回列表後列表可見
-    const memoBtn = $('#rmode-memo'); memoBtn && memoBtn.click(); await sleep(80);
-    const memoVis = visible($('#memo-panel')) && !visible($('#recipe-list'));
-    const memoTxt = memoVis ? $('#memo-panel').textContent : '';
-    const memoHas = /奶茶大杯五/.test(memoTxt) && /只有歐蕾/.test(memoTxt) && /鍵 ?3/.test(memoTxt) && /西瓜/.test(memoTxt);
-    const memoHl = !!$('#memo-panel .fam.hl') && /西瓜/.test($('#memo-panel .fam.hl').textContent);
-    const memoBox = $('#memo-panel').getBoundingClientRect(); const memoFits = memoBox.bottom <= window.innerHeight + 1;
-    const listBtn = $('#rmode-list'); listBtn && listBtn.click(); await sleep(50);
-    const backToList = visible($('#recipe-list')) && !visible($('#memo-panel'));
+    // v7：獨立的「速記法」分頁已移除（速記只放在每個配方展開內）；配方表只有列表
+    const memoGone = !$('#rmode-memo') && !$('#memo-panel') && !$('#memo-tpl') && !$('#modal-recipes .rmode');
+    const listVis = visible($('#recipe-list')) && visible($('#recipe-search'));
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     $$('#modal-recipes button').forEach(b => { if (/關閉/.test(b.textContent)) b.click(); });
     await sleep(100); const resumed = g.state.paused === false; const e2 = o27.elapsed; await sleep(700); const e3 = o27.elapsed;
-    ok(27, mrVis && pausedWhileOpen && (e1 - e0) < 0.1 && hasSteps && hasSv && hasVessel && hasMemoRules && boxFits && resumed && (e3 - e2) >= 0.5 && memoVis && memoHas && memoHl && memoFits && backToList,
-      `vis=${mrVis} paused=${pausedWhileOpen} dtOpen=${(e1 - e0).toFixed(2)} steps=${hasSteps} sv=${hasSv} vessel=${hasVessel} rules=${hasMemoRules}(vrows=${vrows},lis=${memoLis.length}) boxFits=${boxFits}(${br27 && Math.round(br27.bottom)}/${window.innerHeight}) resumed=${resumed} dtAfter=${(e3 - e2).toFixed(2)} memo=${memoVis}/${memoHas}/hl=${memoHl}/fits=${memoFits}/back=${backToList}`);
+    ok(27, mrVis && pausedWhileOpen && (e1 - e0) < 0.1 && hasSteps && hasSv && hasVessel && hasMemoRules && boxFits && resumed && (e3 - e2) >= 0.5 && memoGone && listVis,
+      `vis=${mrVis} paused=${pausedWhileOpen} dtOpen=${(e1 - e0).toFixed(2)} steps=${hasSteps} sv=${hasSv} vessel=${hasVessel} rules=${hasMemoRules}(vrows=${vrows},lis=${memoLis.length}) boxFits=${boxFits}(${br27 && Math.round(br27.bottom)}/${window.innerHeight}) resumed=${resumed} dtAfter=${(e3 - e2).toFixed(2)} 速記分頁已移除=${memoGone} 列表可見=${listVis}`);
 
     // #28 暫停
     const q0 = o27.elapsed; $('#btn-pause').click(); await sleep(2000); const q1 = o27.elapsed; $('#btn-pause').click();
@@ -331,9 +361,9 @@ async function runAcceptance() {
     ok(29, app && fullW && fullH && noHScroll && visible($('#cup')) && visible($('#measure')) && visible($('#btn-serve')) && visible($('#ice-panel')) && visible($('#vessel-slot')) && $$('.vessel-tab').length === 4 && noHint && eqAlwaysVisible && steamDisOnCup && steamOkOnShaker && listFits && clippedCards.length === 0,
       `app=${rct && Math.round(rct.width)}x${rct && Math.round(rct.height)} win=${window.innerWidth}x${window.innerHeight} hscroll=${!noHScroll} noHint=${noHint} eqVisible=${eqAlwaysVisible} steamDisCup=${steamDisOnCup} steamOkShaker=${steamOkOnShaker} listFits=${listFits} clipped=${clippedCards.join('|')}`);
 
-    // #30 每日結算（全部完美製作）
-    g.startDay(1); await sleep(200); clearCounter();
-    const total = g.DAY_CONFIG[1].customers; let served = 0, guard = 0, qs = [];
+    // #30 一輪結算（全部完美製作）：「再練一輪」沿用同一個練習範圍；「換練習種類」回開始畫面
+    g.startPractice(['紅茶系列']); await sleep(200); clearCounter();
+    const total = g.PRACTICE && g.PRACTICE.customers; let served = 0, guard = 0, qs = [];
     while (served < total && guard++ < 40) {
       const o = g.spawnCustomer(); g.acceptOrder(o.id);
       await makePerfect(o.target); qs.push(Math.round(g.score(o.target, g.state.cup).Q));
@@ -341,9 +371,22 @@ async function runAcceptance() {
       const rc = $('#btn-result-close'); if (rc && disp('#modal-result')) { rc.click(); await sleep(60); }   // 結算需手動關閉
     }
     await sleep(1200);
-    const deVis = disp('#modal-day-end'); const dayBefore = g.state.day;
-    const nextBtn = $$('#modal-day-end button').find(b => /下一天/.test(b.textContent)); nextBtn && nextBtn.click(); await sleep(200);
-    ok(30, deVis && g.state.day === dayBefore + 1 && $('#hud-day').textContent.includes(String(dayBefore + 1)) && qs.every(q => q === 100), `dayEnd=${deVis} day ${dayBefore}->${g.state.day} Qs=${qs.join(',')}`);
+    const deVis = disp('#modal-day-end');
+    const deTxt = $('#modal-day-end').textContent;
+    const noDayWords = !/Day|下一天/.test(deTxt) && /紅茶系列/.test(deTxt);
+    const retry = $$('#modal-day-end button').find(b => /再練一輪/.test(b.textContent)); retry && retry.click(); await sleep(200);
+    const retried = !disp('#modal-day-end') && g.state.served === 0 && g.state.started && g.state.practice.cats.join() === '紅茶系列';
+    const retryOnce = qs.length === total;
+    // 再結束一次（直接把 served 補滿），這次按「換練習種類」
+    g.state.served = total - 1; const o30 = g.spawnCustomer(); g.acceptOrder(o30.id); await makePerfect(o30.target); g.serve(); await sleep(80);
+    const rc30 = $('#btn-result-close'); if (rc30 && disp('#modal-result')) { rc30.click(); await sleep(60); }
+    await sleep(600);
+    const menu = $$('#modal-day-end button').find(b => /換練習種類/.test(b.textContent)); menu && menu.click(); await sleep(200);
+    const backToStart = disp('#modal-start') && !disp('#modal-day-end') && $$('#modal-start .cat-btn[data-cat="紅茶系列"][aria-pressed="true"]').length === 1;
+    $('#modal-start').style.display = 'none';
+    ok(30, total >= 5 && deVis && noDayWords && !!retry && retried && retryOnce && !!menu && backToStart && qs.every(q => q === 100),
+      `杯數=${total} 結算=${deVis} 無Day字樣=${noDayWords} 再練一輪=${retried} 換種類回開始畫面且保留選擇=${backToStart} Qs=${qs.join(',')}`);
+    g.startPractice(); await sleep(100);
 
     // #31 容器槽 UI 與 pourInto
     clearCup();
