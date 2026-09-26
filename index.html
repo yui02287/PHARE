@@ -387,100 +387,180 @@
     #vessel-actions{grid-auto-rows:minmax(38px,1fr)}
   }
 
-  /* ===== v5 手機／平板直向（≤ 820px）：單欄直向捲動（見 PLAN-v5-mobile.md）。以下只新增、不改桌機規則 ===== */
-  #btn-recipes-dock{display:none}   /* 手機版底部送出列的配方表快捷鍵；桌機不顯示 */
+  /* ===== v6 手機直向（≤ 820px）：固定一個畫面、整頁不捲動的工作台（見 PLAN-v6-mobile-ux.md） =====
+     ① HUD ② 櫃台 ③ 訂單列 ④ 容器台 ⑤ 分頁列 #mtabs ⑥ 工具區（唯一會捲動的區塊） ⑦ 底列；量杯 #measure 變成蓋住 ⑤⑥ 的面板。
+     既有元件由 JS（applyLayout）在手機寬度搬進 #m-* 骨架，回到桌機寬度時搬回原位。以下只新增、不改桌機規則。 */
+  #m-order,#m-station,#m-lower,#m-dock,#m-close,#m-peek,#m-rotate{display:none}
+  #btn-recipes-dock{display:none}   /* 手機版底列的配方表鍵；桌機不顯示 */
+  @keyframes m-enter{from{opacity:0}to{opacity:1}}
+  @keyframes m-sheet{from{transform:translateY(16px);opacity:.5}to{transform:none;opacity:1}}
   @media (max-width:820px), (pointer:coarse){
     button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
     #m-fill,#ice-fill{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
   }
   @media (max-width:820px){
-    html{-webkit-text-size-adjust:100%;text-size-adjust:100%;height:auto;overflow-x:hidden;overflow-y:auto}
-    body{height:auto;min-height:100%;overflow:visible}
-    #stage{position:static;inset:auto;overflow:visible}
-    #app{height:auto;min-height:100vh;display:flex;flex-direction:column;overflow:visible;
-      padding-bottom:calc(84px + env(safe-area-inset-bottom))}
-    /* 底部送出列的底色（純色，不用漸層） */
-    #app::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(72px + env(safe-area-inset-bottom));background:rgba(246,249,253,.96);border-top:1px solid var(--line);z-index:39;pointer-events:none}
+    html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    #app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(0,1fr) auto;
+      grid-template-areas:"hud" "counter" "order" "station" "lower" "dock";height:100%;overflow:hidden}
+    #staff,#work,#panel{display:none}
 
-    /* 1. HUD：兩列（字標＋狀態／四顆按鈕） */
-    #hud{flex:none;flex-wrap:wrap;height:auto;gap:6px;padding:8px 8px;padding-top:max(8px, env(safe-area-inset-top));font-size:.9rem}
-    #hud .brand{margin-right:2px}
-    #hud .stat{padding:0 8px;height:30px}
-    #hud .spacer{flex:0 0 100%;height:0}
-    #hud button{flex:1 1 0;min-width:0;height:40px;min-height:40px;padding:0 .3rem}
+    /* ① HUD：一行小字；🎵 🔊 ⏸ 只露圖示（文字用 word-spacing 推出 40px 鍵外再裁掉，audio.js 改字不受影響） */
+    #hud{gap:2px;min-height:44px;padding:2px 4px 2px 10px;padding-top:max(2px, env(safe-area-inset-top));font-size:.76rem;overflow:hidden}
+    #hud .brand{flex:none;margin-right:4px}
+    #hud .brand .logo-zh{font-size:1.05rem;letter-spacing:.08em}
+    #hud .brand .logo-en{display:none}
+    #hud .stat{flex:0 1 auto;min-width:0;height:auto;padding:0 3px;background:transparent;overflow:hidden;text-overflow:ellipsis}
+    #hud .spacer{flex:1 1 0;min-width:0}
+    #hud button{flex:none;width:40px;height:40px;min-height:40px;padding:0 0 0 10px;justify-content:flex-start;overflow:hidden;word-spacing:48px;font-size:1.05rem;background:transparent;border-color:transparent}
+    #hud button:hover{background:var(--brand-tint);border-color:transparent}
+    #hud #btn-recipes{display:none}
 
-    /* 2. 櫃台：客人水平捲動條 */
-    #counter{flex:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:8px;-webkit-overflow-scrolling:touch;
-      gap:10px;padding:8px;min-height:128px}
-    #counter-more{right:8px;top:2px}
-    .customer{flex:0 0 180px;max-width:none;scroll-snap-align:start}
+    /* ② 櫃台：小卡（頭像＋飲料名＋耐心條＋秒數），一列橫向捲動 */
+    #counter{gap:6px;padding:6px 8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    #counter::-webkit-scrollbar{display:none}
+    #counter-more{display:none}
+    #counter .customer{flex:0 0 150px;max-width:none;min-height:48px;display:grid;grid-template-columns:34px minmax(0,1fr) auto;grid-template-rows:auto auto;
+      column-gap:6px;row-gap:5px;align-items:center;align-content:center;padding:5px 8px;background:var(--card);border:1px solid var(--line);border-radius:10px;animation-name:m-enter}
+    #counter .customer .bubble,#counter .customer .person,#counter .customer .avatar,#counter .customer .tags{display:contents}
+    #counter .customer .bubble::after,#counter .customer .meta,#counter .customer .body,#counter .customer .badge{display:none}
+    #counter .customer .face{grid-column:1;grid-row:1 / span 2;width:34px;height:34px;font-size:20px;border-width:2px}
+    #counter .customer .bubble b{grid-column:2 / span 2;grid-row:1;min-width:0;font-size:.8rem;line-height:1.2}
+    #counter .customer .patience{grid-column:2;grid-row:2;height:6px;margin-top:0}
+    #counter .customer .hint{grid-column:3;grid-row:2;font-size:.68rem;line-height:1}
+    #counter .customer.accepted{border-color:var(--brand-soft)}
+    #counter .customer.current{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand);background:var(--brand-tint)}
 
-    /* 3. 待做清單：隱藏店員頭像，清單改一列小膠囊 */
-    #staff{flex:none;min-height:auto;padding:8px;gap:6px;border-right:0;border-bottom:1px solid var(--line)}
-    #staff .staff-face{display:none}
-    #staff h4{margin:0}
-    #queue-list{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:6px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-    #queue-list li{flex:none;max-width:230px;height:40px;line-height:38px;padding:0 14px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    #queue-list li small{display:inline;margin:0 0 0 6px}
-    #queue-list .empty{flex:1 1 auto;max-width:none;padding:0 14px}
+    /* ③ 訂單列：左 目前訂單（名稱＋chips／系列・耐心），右 待做清單小膠囊（橫向捲動） */
+    #m-order{grid-area:order;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;min-height:50px;padding:4px 8px;background:var(--card);border-bottom:1px solid var(--line)}
+    #m-order .order{min-width:0;padding:0;gap:1px;border:0;border-radius:0;box-shadow:none;background:transparent}
+    #order-title{min-height:0;display:flex;align-items:center;gap:6px;font-size:.95rem;line-height:1.3;white-space:nowrap;overflow:hidden}
+    #order-title .o-name{flex:0 1 auto;min-width:0}
+    #order-title .chips{flex:none;flex-wrap:nowrap;gap:3px;margin-top:0}
+    #order-title .o-none{font-size:.9rem}
+    #order-hint{font-size:.7rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #queue-list{flex-direction:row;gap:4px;max-width:44vw;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    #queue-list::-webkit-scrollbar{display:none}
+    #queue-list li{flex:none;height:40px;max-width:112px;padding:0 12px;line-height:38px;border-radius:999px;font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #queue-list li small{display:none}
+    #queue-list .empty{height:auto;max-width:none;padding:0 4px;line-height:1.3;border:0;font-size:.7rem}
 
-    /* 4. 工作區：容器全寬 → 量杯｜冰量 → 精簡紙杯條 */
-    #work{flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-      grid-template-areas:"vs vs" "m i" "cup cup";gap:8px;padding:8px}
-    #work>#vessel-slot{grid-area:vs}
-    #work>#measure{grid-area:m}
-    #work>#ice-panel{grid-area:i}
-    #work>.cupbox{grid-area:cup}
-    #work .row button{min-height:44px}
+    /* ④ 容器台：四個容器分頁／容器摘要＋倒入鍵｜迷你成品紙杯＋M/L、冰/熱 */
+    #m-station{grid-area:station;display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px 8px;background:var(--card);border-bottom:1px solid var(--line)}
+    #vessel-tabs{gap:4px}
+    .vessel-tab{height:40px;min-height:40px;padding:0 .2rem;font-size:.78rem}
+    .vessel-tab .vt-e{font-size:1rem}
+    .vessel-tab .dot{right:-3px;top:-5px;min-width:16px;height:16px;padding:0 4px;font-size:.62rem}
+    .ms-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+    #m-st-left{display:flex;flex-direction:column;gap:6px;min-width:0}
+    #vessel-view{flex:1 1 auto;display:grid;grid-template-columns:40px minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:8px;row-gap:1px;
+      align-items:center;align-content:center;justify-items:start;text-align:left;min-height:54px;padding:5px 8px}
+    #vessel-view .vv-fig{grid-column:1;grid-row:1 / span 3;width:40px;height:40px;padding:3px}
+    #vessel-view .vv-emoji{font-size:1.2rem}
+    #vessel-view .vv-name{grid-column:2;grid-row:1;margin-top:0;font-size:.85rem}
+    #vessel-view .vv-sum{grid-column:2;grid-row:2;font-size:.7rem}
+    #vessel-view .vv-items,#vessel-view .vv-hint{grid-column:2;grid-row:3;font-size:.68rem;line-height:1.25}
+    #vessel-view .vv-action{right:4px;top:2px;font-size:1.1rem}
+    #action-progress{height:16px}
+    #action-progress .lbl{line-height:16px;font-size:.66rem}
+    .pour-row{min-height:40px;gap:6px}
+    .pour-row button{height:40px;min-height:40px;padding:0 6px;font-size:.78rem;line-height:1.15;white-space:normal}
+    .pour-row .pour-note{display:none}
+    #m-st-cup{display:flex;align-items:center}
+    #m-st-cup .cupbox{display:grid;grid-template-columns:44px auto;grid-template-rows:auto auto;column-gap:6px;row-gap:2px;align-items:center;align-content:center;
+      padding:0;border:0;border-radius:0;box-shadow:none;background:transparent;overflow:visible}
+    #m-st-cup .cupbox .card-h{grid-column:2;grid-row:1 / span 2;display:block}
+    #m-st-cup .cupbox .card-h>span:first-child{display:none}
+    #m-st-cup .cupbox .segs{display:flex;flex-direction:column;gap:4px}
+    #m-st-cup .cupbox .seg button{width:40px;min-width:40px;height:40px;min-height:40px;padding:0;font-size:.85rem}
+    #m-st-cup .cup-wrap{grid-column:1;grid-row:1;padding:0}
+    #m-st-cup #cup{flex:none;width:44px;height:58px;max-width:none;max-height:none;aspect-ratio:auto;border-width:2px;border-top-width:4px;border-radius:5px 5px 14px 14px}
+    #m-st-cup #cup .icons{bottom:3px;font-size:10px;letter-spacing:0}
+    #m-st-cup #cup .vact{right:1px;top:1px;font-size:14px}
+    #m-st-cup #cup-total{grid-column:1;grid-row:2;font-size:.72rem;white-space:nowrap}
 
-    /* 4a. 目前容器 */
-    .vessel-tab{min-height:44px}
-    .vs-body{flex:none;grid-template-columns:minmax(0,1fr)}
-    #vessel-view{display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:10px;row-gap:0;align-items:center;text-align:left;padding:8px 10px 20px;min-height:84px}
-    #vessel-view .vv-fig{grid-column:1;grid-row:1 / span 4;width:48px;height:48px}
-    #vessel-view .vv-emoji{font-size:1.5rem}
-    #vessel-view>.vv-name,#vessel-view>.vv-sum,#vessel-view>.vv-items,#vessel-view>.vv-hint{grid-column:2;margin-top:0}
-    #vessel-actions{height:auto;max-height:none;align-self:stretch;grid-auto-rows:minmax(48px,auto)}
+    /* ⑤ 分頁列＋⑥ 工具區（量杯面板蓋在這一整塊上） */
+    #m-lower{grid-area:lower;position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
+    #mtabs{flex:none;display:flex;background:var(--card);border-bottom:1px solid var(--line)}
+    #mtabs button{flex:1 1 0;min-width:0;height:44px;min-height:44px;padding:0 4px;border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;
+      background:var(--card);color:var(--muted);font-size:.82rem;font-weight:700}
+    #mtabs button+button{border-left:1px solid var(--line)}
+    #mtabs button:hover{background:var(--brand-tint)}
+    #mtabs button:active{transform:none}
+    #mtabs button[aria-selected="true"]{color:var(--ink);background:var(--brand-tint);border-bottom-color:var(--brand)}
+    #mtabs .mt-badge{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--brand);color:#fff;font-size:.66rem;line-height:18px;text-align:center}
+    #mtabs .mt-badge:empty,body[data-mtab="cup"] #mtabs .mt-badge{display:none}
+    body.m-peek #m-peek{display:flex}
+    #m-peek{flex:none;height:40px;min-height:40px;margin:6px 8px 0;justify-content:center;overflow:hidden;background:var(--brand-tint);border-color:var(--brand-soft);color:var(--ink);font-size:.82rem;font-weight:700}
+    #m-tools{flex:1 1 auto;min-height:0;padding:8px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .m-pane{display:none;flex-direction:column;gap:8px;min-width:0}
+    body[data-mtab="ing"] .m-pane[data-pane="ing"],body[data-mtab="tools"] .m-pane[data-pane="tools"],body[data-mtab="cup"] .m-pane[data-pane="cup"]{display:flex}
+    .m-pane[data-pane="ing"],.m-pane[data-pane="cup"]{height:100%;min-height:0}
+
+    /* ⑥-1 素材：類別列（橫向捲動）＋素材格（三欄以上、格高 ≥ 56，自己捲動） */
+    #bench{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:6px;padding:0}
+    .tabs-row{flex:none;gap:6px}
+    .tabs{flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:none;height:40px;min-height:40px;padding:0 .8rem}
+    #bench-hint{display:none}
+    #panels{flex:1 1 auto;min-height:0}
+    #bench .panel{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));grid-auto-rows:minmax(62px,auto);align-content:start;gap:6px;padding:6px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
+    #bench .ing{flex-direction:column;justify-content:center;gap:1px;min-height:62px;padding:4px 4px 8px}
+    #bench .ing .sw{width:24px;height:24px;font-size:14px}
+    #bench .ing .nm{flex:none;text-align:center;font-size:.78rem}
+    #bench .ing .sub{display:block;font-size:.64rem}
+
+    /* ⑥-2 冰塊・設備：冰量四欄格＋設備三欄格 */
+    #ice-panel{flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-areas:"h h h h" "cup cup fill fill" "m5 p5 clr clr" "q33 q50 q80 q90";gap:6px;padding:8px}
+    #ice-panel .card-h{grid-area:h;font-size:.88rem}
+    #ice-panel .ice-cup{grid-area:cup;flex:none;min-height:48px}
+    #ice-pct{font-size:1.5rem}
+    #ice-panel .row{display:contents}
+    #ice-panel button{height:auto;min-height:44px;min-width:0;padding:0 .2rem;font-weight:700}
+    #ice-fill{grid-area:fill}
+    #ice-m5{grid-area:m5}
+    #ice-p5{grid-area:p5}
+    #ice-clear{grid-area:clr;background:var(--card);border-color:var(--line);box-shadow:var(--shadow)}
+    #ice-panel .ice-preset[data-pct="33"]{grid-area:q33}
+    #ice-panel .ice-preset[data-pct="50"]{grid-area:q50}
+    #ice-panel .ice-preset[data-pct="80"]{grid-area:q80}
+    #ice-panel .ice-preset[data-pct="90"]{grid-area:q90}
+    #vessel-actions{flex:none;height:auto;max-height:none;align-self:stretch;grid-auto-rows:minmax(48px,auto);padding:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
     #vessel-actions button{height:auto;min-height:48px}
-    .pour-row,.pour-row button{min-height:44px}
 
-    /* 4b. 量杯｜冰量並排 */
-    .m-body{flex:1 1 auto;min-height:64px}
-    .ice-cup{flex:1 1 auto;min-height:56px}
-    #measure-ml,#ice-pct{font-size:1.7rem}
-    #m-fill,#ice-fill{min-height:48px}
-    #ice-clear{min-height:40px}
+    /* ⑥-3 杯內・收尾：清單（自己捲動）＋倒掉重做＋收尾三選一 */
+    .m-pane[data-pane="cup"] #cup-list{flex:1 1 auto;min-height:72px;max-height:none}
+    .m-pane[data-pane="cup"] #btn-reset-cup{flex:none;align-self:flex-end;height:44px;min-height:44px;padding:0 14px;font-weight:700}
+    #finish-panel{flex:none;padding:6px 8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+    #finish-panel .seg button{height:44px;min-height:44px}
 
-    /* 4c. 成品紙杯：橫向精簡條 */
-    #work>.cupbox{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:12px;row-gap:6px;align-items:center;text-align:left;padding:8px 12px}
-    .cupbox .cup-wrap{grid-column:1;grid-row:1 / span 2;padding:0}
-    .cupbox .card-h{grid-column:2;justify-content:space-between}
-    #cup-total{grid-column:2}
-    #cup{flex:none;width:64px;height:88px;max-width:none;max-height:none;aspect-ratio:auto}
-    #work .cupbox .seg button{min-width:44px;height:40px;min-height:40px}
+    /* 量杯面板：點液體自動彈出，蓋住 ⑤⑥；✕ 收起（內容保留）、倒入成功或倒掉後自動收起 */
+    #measure{position:absolute;inset:0;z-index:30;display:none;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto minmax(48px,1fr) auto auto;
+      grid-template-areas:"h h h h" "body body fill fill" "m5 m1 p1 p5" "empty empty pour pour";gap:8px;padding:8px 10px 10px;
+      border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -2px 12px rgba(43,68,96,.10);cursor:default}
+    body.m-open #measure{display:grid;animation:m-sheet .1s ease-out}
+    #measure .card-h{grid-area:h;justify-content:flex-start;gap:4px;font-size:.95rem}
+    #measure .card-h>span:first-child::after{content:"："}
+    #measure-src{flex:1 1 auto;min-width:0;font-size:.95rem;font-weight:600;color:var(--ink);font-family:var(--font-serif)}
+    #m-close{display:inline-flex;flex:none;width:40px;height:40px;min-height:40px;padding:0;font-size:1.1rem;color:var(--muted)}
+    #measure .m-body{grid-area:body;min-height:48px}
+    #measure-ml{font-size:1.9rem}
+    #m-fill{grid-area:fill;height:auto;min-height:48px}
+    #measure .row{display:contents}
+    #measure button{min-width:0;font-weight:700}
+    #measure .row button{height:44px;min-height:44px}
+    #m-m5{grid-area:m5}
+    #m-m1{grid-area:m1}
+    #m-p1{grid-area:p1}
+    #m-p5{grid-area:p5}
+    #m-empty{grid-area:empty}
+    #btn-pour{grid-area:pour}
 
-    /* 5. 素材台：分頁可水平捲動、格高 ≥ 56 */
-    #bench{flex:none;min-height:auto;padding:8px}
-    .tabs-row{flex-wrap:wrap;gap:6px}
-    .tabs{flex:1 1 100%;min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-    .tab{flex:none;min-height:40px;padding:0 .8rem}
-    #bench-hint{margin-left:0;flex:1 1 100%;white-space:normal}
-    #panels{flex:none}
-    .panel{flex:1 1 auto;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));grid-auto-rows:minmax(64px,auto);gap:6px;padding:8px}
-    .ing{flex-direction:column;justify-content:center;gap:2px;padding:6px 4px 9px;min-height:56px}
-    .ing .sw{width:28px;height:28px;font-size:16px}
-    .ing .nm{text-align:center;flex:none;font-size:.8rem}
-    .ing .sub{display:block}
-
-    /* 6. 面板 */
-    #panel{flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 8px;border-left:0;border-top:1px solid var(--line);overflow:visible}
-    #cup-list{flex:none;min-height:90px;max-height:40vh}
-    .pbtns button{min-height:44px}
-    #finish-panel .seg button{min-height:44px}
-
-    /* 7. 送出列固定在畫面底部 */
-    #btn-serve{position:fixed;z-index:40;left:72px;width:calc(100% - 80px);bottom:calc(8px + env(safe-area-inset-bottom));height:56px;min-height:56px}
-    #btn-recipes-dock{display:inline-flex;position:fixed;z-index:40;left:8px;bottom:calc(8px + env(safe-area-inset-bottom));width:56px;height:56px;min-height:56px;padding:0;font-size:1.5rem;border-radius:14px;color:var(--brand-dark)}
+    /* ⑦ 底列：📖 配方表｜↶ 撤銷｜送出 ▶（最寬、主色） */
+    #m-dock{grid-area:dock;display:flex;align-items:center;gap:8px;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
+    #m-dock #btn-recipes-dock{display:inline-flex;flex:none;width:52px;height:48px;min-height:48px;padding:0;font-size:1.35rem;border-radius:12px;color:var(--brand-dark)}
+    #m-dock #btn-undo{flex:none;height:48px;min-height:48px;padding:0 14px;font-size:.9rem;font-weight:700;border-radius:12px}
+    #m-dock #btn-serve{flex:1 1 auto;min-width:0;height:48px;min-height:48px;font-size:1.1rem;letter-spacing:2px;border-radius:12px}
 
     /* Modal／浮層：改相對視窗固定，內部捲動 */
     .modal{position:fixed;padding:max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom))}
@@ -512,9 +592,16 @@
     .qty-steps{flex-wrap:wrap}
     .qty-steps button,.qty-presets button{min-height:44px}
   }
+  /* 橫拿的手機（很矮的觸控橫向螢幕）：請直拿 */
+  @media (orientation:landscape) and (max-height:500px) and (pointer:coarse){
+    #m-rotate{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;
+      background:var(--brand);color:#fff;font-family:var(--font-serif);font-size:1.4rem;letter-spacing:.12em;text-align:center}
+    #m-rotate .ic{font-size:2.6rem;letter-spacing:0}
+    #m-rotate small{font-family:var(--font-sans);font-size:.85rem;letter-spacing:0;opacity:.92}
+  }
 </style>
 </head>
-<body>
+<body data-mtab="ing">
 <div id="stage">
 <div id="app">
   <!-- A. HUD -->
@@ -596,7 +683,7 @@
     </div>
 
     <div class="card" id="measure" title="拖曳量杯到液體素材、容器圖或紙杯">
-      <div class="card-h"><span>量杯</span><span class="sub" id="measure-src">拖到液體上</span></div>
+      <div class="card-h"><span>量杯</span><span class="sub" id="measure-src">拖到液體上</span><button id="m-close" type="button" title="收起量杯（內容保留）" aria-label="收起量杯">✕</button></div>
       <div class="m-body"><div class="liquid"></div><div id="measure-ml">0</div><span class="m-unit">ml</span></div>
       <button id="m-fill">按住裝填</button>
       <div class="row"><button id="m-m5">−5</button><button id="m-p5">+5</button></div>
@@ -640,6 +727,27 @@
     <button id="btn-recipes-dock" title="配方表" aria-label="配方表">📖</button>
     <button id="btn-serve" class="primary" disabled>送出 ▶</button>
   </aside>
+
+  <!-- v6 手機版工作台骨架（桌機 display:none）：手機寬度時 JS 把上面的元件搬進來，回到桌機寬度時搬回原位 -->
+  <section id="m-order"></section>
+  <section id="m-station">
+    <div id="m-st-tabs"></div>
+    <div class="ms-row"><div id="m-st-left"></div><div id="m-st-cup"></div></div>
+  </section>
+  <section id="m-lower">
+    <nav id="mtabs" role="tablist" aria-label="工具分頁">
+      <button type="button" role="tab" data-mtab="ing" aria-selected="true">🧃 素材</button>
+      <button type="button" role="tab" data-mtab="tools" aria-selected="false">🧊 冰塊・設備</button>
+      <button type="button" role="tab" data-mtab="cup" aria-selected="false">✅ 杯內・收尾<span class="mt-badge" id="mt-badge-cup"></span></button>
+    </nav>
+    <button id="m-peek" type="button"></button>
+    <div id="m-tools">
+      <div class="m-pane" data-pane="ing"></div>
+      <div class="m-pane" data-pane="tools"></div>
+      <div class="m-pane" data-pane="cup"></div>
+    </div>
+  </section>
+  <footer id="m-dock"></footer>
 
   <!-- Modals -->
   <div class="modal" id="modal-start" style="display:flex">
@@ -799,6 +907,7 @@
   <div id="ghost">🥛</div>
 </div>
 </div>
+<div id="m-rotate" aria-hidden="true"><span class="ic">📱</span>請直拿手機<small>橫拿畫面太矮，轉回直向就能繼續</small></div>
 <script src="recipes.js"></script>
 <script src="audio.js"></script>
 <script>
@@ -1429,11 +1538,11 @@
   function mountMeasure(ing) {
     if (!ING[ing] || kindOf(ing) !== 'liquid') { toast('量杯只能裝液體'); return false; }
     const m = state.measure;
-    if (m.src && m.src !== ing && m.ml > 0) { toast('量杯已裝有「' + ING[m.src].name + '」，請先倒掉'); flashMeasure(); return false; }
-    m.src = ing; GameAudio.play('mount'); renderMeasure(); return true;
+    if (m.src && m.src !== ing && m.ml > 0) { toast('量杯已裝有「' + ING[m.src].name + '」，請先倒掉'); flashMeasure(); mSheet(true); return false; }
+    m.src = ing; GameAudio.play('mount'); renderMeasure(); mSheet(true); return true;   // v6 手機：量杯面板自動彈出（桌機 no-op）
   }
   function setMeasure(ml) { GameAudio.play(Number(ml) > state.measure.ml ? 'tick_up' : 'tick_down'); state.measure.ml = clamp(Math.round(Number(ml) || 0), 0, 500); renderMeasure(); }
-  function emptyMeasure() { GameAudio.play('dump'); state.measure.ml = 0; state.measure.src = null; renderMeasure(); }
+  function emptyMeasure() { GameAudio.play('dump'); state.measure.ml = 0; state.measure.src = null; renderMeasure(); mSheet(false); }
   // 量杯倒入：pour(v = active 容器)；#btn-pour／拖到 #vessel-view → active；拖到 #cup → 紙杯
   function pour(v) {
     const m = state.measure;
@@ -1441,7 +1550,7 @@
     if (m.ml <= 0) { toast('量杯是空的，請先按住「裝填」'); return false; }
     v = VESSELS[v] ? v : state.active;
     if (!addItem(m.src, m.ml, v)) return false;
-    m.ml = 0; renderMeasure(); return true;
+    m.ml = 0; renderMeasure(); mSheet(false); return true;   // v6 手機：倒入成功 → 面板收起
   }
   function flashMeasure() { const el = $('#measure'); el.style.borderColor = 'var(--red)'; setTimeout(() => { el.style.borderColor = ''; }, 500); }
   let fill = null;
@@ -1617,6 +1726,7 @@
     const result = { order, cup, score: sc, T, sat, stars, money, elapsed: order.elapsed };
     showResult(result);
     render();
+    setMTab('ing'); mSheet(false);   // v6 手機：下一杯從「素材」分頁開始（桌機只改 body data 屬性，無影響）
     if (state.money > progress.bestMoney) { progress.bestMoney = state.money; saveProgress(); }
     return result;
   }
@@ -1708,6 +1818,7 @@
     $('#counter').querySelectorAll('.customer').forEach(el => el.remove());
     // 第一位客人於開店後約 1.5 秒進門（由主循環抽牌），之後照 interval
     spawnTimer = Math.max(0, dayConf(day).interval - 1.5);
+    setMTab('ing'); mSheet(false);
     render();
     return true;
   }
@@ -1935,6 +2046,7 @@
     liq.style.height = (m.ml / 500 * 100) + '%';
     liq.style.background = m.src ? ING[m.src].color : 'var(--ice)';
     $$('.ing[data-kind=liquid]').forEach(el => el.classList.toggle('mounted', el.dataset.ing === m.src));
+    renderMPeek();
   }
   function renderPanel() {
     const c = cur();
@@ -1959,6 +2071,7 @@
     if (cup.finish && cup.finish !== 'none') rows.push('<li class="fin">✔ 收尾：' + esc(FINISH[cup.finish]) + '</li>');
     ul.innerHTML = rows.length ? rows.join('') : '<li class="empty">工作杯是空的</li>';
     $$('#finish-panel .fin').forEach(b => b.classList.toggle('on', b.dataset.fin === (cup.finish || 'none')));
+    const bd = $('#mt-badge-cup'); if (bd) bd.textContent = cup.items.length ? String(cup.items.length) : '';   // v6 手機分頁鍵徽章
   }
   // 設備按鈕依 active 容器 disabled（容器不支援或前置不成立）
   // v6：七顆設備一律可見（使用者反映「沒有蒸汽機」）；不適用於目前容器 → .na 變淡＋disabled＋title 提示切換容器
@@ -2014,6 +2127,57 @@
   }
   setInterval(tick, 50);
 
+  // ===== v6 手機版工作台（≤ 820px，見 PLAN-v6-mobile-ux.md）=====
+  // 手機寬度：把既有元件（id／class／事件都不變）搬進 #m-* 骨架；回到桌機寬度時依佔位註解搬回原位。
+  // 桌機寬度：applyLayout 不搬任何東西、mSheet 不加 m-open、setMTab 只改 body 的 data 屬性（桌機 CSS 不讀），全部無影響。
+  const mq = window.matchMedia ? window.matchMedia('(max-width:820px)') : null;
+  const isMobile = () => !!(mq && mq.matches);
+  const M_MOVES = [
+    ['#panel .order', '#m-order'], ['#queue-list', '#m-order'],
+    ['#vessel-tabs', '#m-st-tabs'], ['#vessel-view', '#m-st-left'], ['#vessel-slot .pour-row', '#m-st-left'], ['#work .cupbox', '#m-st-cup'],
+    ['#bench', '.m-pane[data-pane="ing"]'],
+    ['#ice-panel', '.m-pane[data-pane="tools"]'], ['#vessel-actions', '.m-pane[data-pane="tools"]'],
+    ['#cup-list', '.m-pane[data-pane="cup"]'], ['#btn-reset-cup', '.m-pane[data-pane="cup"]'], ['#finish-panel', '.m-pane[data-pane="cup"]'],
+    ['#measure', '#m-lower'],
+    ['#btn-recipes-dock', '#m-dock'], ['#btn-undo', '#m-dock'], ['#btn-serve', '#m-dock'],
+  ].map(([s, t]) => ({ el: $(s), to: $(t), ph: null }));
+  let mLayout = false;
+  function applyLayout() {
+    const want = isMobile();
+    if (want === mLayout) return;
+    mLayout = want;
+    if (want) {
+      M_MOVES.forEach(m => {
+        if (!m.el || !m.to) return;
+        m.ph = document.createComment('v6-slot'); m.el.parentNode.insertBefore(m.ph, m.el); m.to.appendChild(m.el);
+      });
+    } else {
+      M_MOVES.forEach(m => { if (m.ph && m.ph.parentNode) m.ph.parentNode.replaceChild(m.el, m.ph); m.ph = null; });
+      document.body.classList.remove('m-open');
+    }
+    renderMPeek();
+  }
+  const M_TABS = ['ing', 'tools', 'cup'];
+  function setMTab(k) {
+    if (!M_TABS.includes(k)) k = 'ing';
+    document.body.dataset.mtab = k;
+    $$('#mtabs [data-mtab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mtab === k)));
+    const t = $('#m-tools'); if (t) t.scrollTop = 0;
+    return k;
+  }
+  // 量杯面板開關（body.m-open）；只在手機寬度生效
+  function mSheet(open) {
+    document.body.classList.toggle('m-open', !!open && isMobile());
+    renderMPeek();
+  }
+  // 面板收起但量杯還有液體 → 分頁列下方顯示「量杯：綠茶 30ml」，點了重新打開
+  function renderMPeek() {
+    const m = state.measure, p = $('#m-peek'); if (!p) return;
+    const show = isMobile() && !document.body.classList.contains('m-open') && !!m.src && m.ml > 0;
+    document.body.classList.toggle('m-peek', show);
+    p.textContent = show ? '🥛 量杯：' + nameOf(m.src) + ' ' + m.ml + 'ml（點我打開）' : '';
+  }
+
   // ===== 事件綁定 =====
   function bind() {
     $('#btn-recipes').addEventListener('click', openRecipes);
@@ -2066,6 +2230,12 @@
       if (!cur()) { toast('請先接單'); return; }
       serve();
     });
+    // v6 手機版：工具分頁、量杯面板收起／再開、寬度切換時搬移版面
+    $$('#mtabs [data-mtab]').forEach(b => b.addEventListener('click', () => { GameAudio.play('tab'); setMTab(b.dataset.mtab); }));
+    $('#m-close').addEventListener('click', () => mSheet(false));
+    $('#m-peek').addEventListener('click', () => mSheet(true));
+    if (mq) { if (mq.addEventListener) mq.addEventListener('change', applyLayout); else if (mq.addListener) mq.addListener(applyLayout); }
+    window.addEventListener('resize', applyLayout);   // 後備（applyLayout 只在跨越 820px 時才搬動）
     $('#modal-result').addEventListener('click', e => { if (e.target.id === 'modal-result') hideResult(); });
     document.addEventListener('keydown', e => {
       if (e.key !== 'Escape') return;
@@ -2146,7 +2316,7 @@
   }
 
   // ===== 初始化 =====
-  buildBench(); buildDayPicker(); bind(); refillDeck(); render();
+  buildBench(); buildDayPicker(); bind(); refillDeck(); applyLayout(); render();
   selftest();
 
   window.game = {
